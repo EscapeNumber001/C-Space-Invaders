@@ -52,6 +52,8 @@ struct EntityManager
   struct Entity* new_ent;
 };
 
+
+void EntityManager_Init(struct EntityManager* em);
 struct Entity* EntityManager_CreateEntity(struct EntityManager* em);
 void EntityManager_RemoveEntity(struct EntityManager* em, struct Entity* ent);
 void Entity_Init(struct Entity* ent, int id);

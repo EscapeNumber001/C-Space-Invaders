@@ -18,6 +18,7 @@
 //#include <stdlib.h>
 #include <SDL2/SDL.h>
 #include "entity.h"
+#include "sprite.h"
 
 #define WIDTH   	640
 #define HEIGHT  	480
@@ -30,37 +31,36 @@ struct SDLGameContext
 
 static struct SDLGameContext sdlGameCtx;
 
+static struct SpriteManager sm;
 static struct EntityManager em;
-
-static struct Entity* ents[ENTITY_LIST_SIZE];
 
 int main()
 {
   SDL_Init(SDL_INIT_EVERYTHING);
+  EntityManager_Init(&em);
+  SpriteManager_Init(&sm);
   sdlGameCtx.win = SDL_CreateWindow("Game", 0, 0, WIDTH, HEIGHT, SDL_WINDOW_OPENGL);
   sdlGameCtx.renderer = SDL_CreateRenderer(sdlGameCtx.win, -1, SDL_RENDERER_ACCELERATED);
 
-  em.first_ent = NULL;
-  em.current_ent = NULL;
-  em.new_ent = NULL;
-  EntityManager_CreateEntity(&em);
-  struct Entity* test = EntityManager_CreateEntity(&em);
-  EntityManager_CreateEntity(&em);
-
-  EntityManager_RemoveEntity(&em, test);
-  free(test);
-
   SDL_Surface* tmpSurf = SDL_LoadBMP("assets/player.bmp");
   SDL_Texture* entTexture = SDL_CreateTextureFromSurface(sdlGameCtx.renderer, tmpSurf);
+  struct Sprite* sprite = SpriteManager_CreateSprite(&sm);
+  sprite->texture = entTexture;
   free(tmpSurf);
   
   while (!SDL_QuitRequested())
   {
-    struct Entity* ent = em.first_ent;
-    while (ent)
+    SDL_SetRenderDrawColor(sdlGameCtx.renderer, 255, 255, 255, 255);
+    SDL_RenderClear(sdlGameCtx.renderer);
+    struct Sprite* spr = sm.firstSpr;
+    while (spr)
     {
-      ent = ent->next;
+      SDL_Rect x = (SDL_Rect){0, 0, 100, 100};
+      SDL_RenderCopy(sdlGameCtx.renderer, spr->texture, NULL, &x);
+      //SpriteManager_RemoveSprite(&sm, spr);
+      spr = spr->next;
     }
+
 
     SDL_RenderPresent(sdlGameCtx.renderer);
   }

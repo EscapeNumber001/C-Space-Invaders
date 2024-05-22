@@ -31,6 +31,7 @@ struct Entity* EntityManager_CreateEntity(struct EntityManager* em)
   return newEnt;
 }
 
+
 /*
  * Removes ent from em's linked list. **Does not free ent!**
  */
@@ -51,4 +52,12 @@ void EntityManager_RemoveEntity(struct EntityManager* em, struct Entity* ent)
 
   if (prevEnt)
     prevEnt->next = ent->next;
+}
+
+
+void EntityManager_Init(struct EntityManager* em)
+{
+  em->first_ent = NULL;
+  em->current_ent = NULL;
+  em->lifetimeEntitiesCreated = 0;
 }
