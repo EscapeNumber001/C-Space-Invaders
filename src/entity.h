@@ -26,9 +26,9 @@ struct Entity
 {
   SDL_Point	position;
   SDL_Point	aabbSize;  // TODO AABBs
-  SDL_Surface* 	surf;
+  SDL_Texture* 	texture;
 
-  void (*onAabbIntersect)(struct Entity* otherAabb);
+  void (*onAabbIntersect)(struct Entity* me, struct Entity* intersectingEntity);
 };
 
 

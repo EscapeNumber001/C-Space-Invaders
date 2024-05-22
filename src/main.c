@@ -17,6 +17,7 @@
  */
 //#include <stdlib.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_rwops.h>
 #include "entity.h"
 
 #define WIDTH   	640
@@ -32,13 +33,22 @@ static struct SDLGameContext sdlGameCtx;
 
 int main()
 {
-  // Re-enable SDL after testing
   SDL_Init(SDL_INIT_EVERYTHING);
   sdlGameCtx.win = SDL_CreateWindow("Game", 0, 0, WIDTH, HEIGHT, SDL_WINDOW_OPENGL);
   sdlGameCtx.renderer = SDL_CreateRenderer(sdlGameCtx.win, -1, SDL_RENDERER_ACCELERATED);
 
+  struct Entity e;
+  Entity_Init(&e);
+  SDL_Surface* tmpSurf = SDL_LoadBMP("assets/player.bmp");
+  SDL_Texture* entTexture = SDL_CreateTextureFromSurface(sdlGameCtx.renderer, tmpSurf);
+  e.texture = entTexture;
+  free(tmpSurf);
+  
   while (!SDL_QuitRequested())
   {
+    SDL_Rect x = {e.position.x, e.position.y, 64, 64};
+    SDL_RenderCopy(sdlGameCtx.renderer, entTexture, NULL, &x);
+    SDL_RenderPresent(sdlGameCtx.renderer);
   }
   return 0;
 }
