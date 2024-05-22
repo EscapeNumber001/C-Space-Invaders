@@ -17,7 +17,6 @@
  */
 //#include <stdlib.h>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_rwops.h>
 #include "entity.h"
 
 #define WIDTH   	640
@@ -31,23 +30,38 @@ struct SDLGameContext
 
 static struct SDLGameContext sdlGameCtx;
 
+static struct EntityManager em;
+
+static struct Entity* ents[ENTITY_LIST_SIZE];
+
 int main()
 {
   SDL_Init(SDL_INIT_EVERYTHING);
   sdlGameCtx.win = SDL_CreateWindow("Game", 0, 0, WIDTH, HEIGHT, SDL_WINDOW_OPENGL);
   sdlGameCtx.renderer = SDL_CreateRenderer(sdlGameCtx.win, -1, SDL_RENDERER_ACCELERATED);
 
-  struct Entity e;
-  Entity_Init(&e);
+  em.first_ent = NULL;
+  em.current_ent = NULL;
+  em.new_ent = NULL;
+  EntityManager_CreateEntity(&em);
+  struct Entity* test = EntityManager_CreateEntity(&em);
+  EntityManager_CreateEntity(&em);
+
+  EntityManager_RemoveEntity(&em, test);
+  free(test);
+
   SDL_Surface* tmpSurf = SDL_LoadBMP("assets/player.bmp");
   SDL_Texture* entTexture = SDL_CreateTextureFromSurface(sdlGameCtx.renderer, tmpSurf);
-  e.texture = entTexture;
   free(tmpSurf);
   
   while (!SDL_QuitRequested())
   {
-    SDL_Rect x = {e.position.x, e.position.y, 64, 64};
-    SDL_RenderCopy(sdlGameCtx.renderer, entTexture, NULL, &x);
+    struct Entity* ent = em.first_ent;
+    while (ent)
+    {
+      ent = ent->next;
+    }
+
     SDL_RenderPresent(sdlGameCtx.renderer);
   }
   return 0;

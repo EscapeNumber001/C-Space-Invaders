@@ -21,17 +21,39 @@
 #define _ENTITY_H_
 
 #include <SDL2/SDL.h>
+#include <stdbool.h>
+
+#define ENTITY_LIST_SIZE 4096
+
+struct Entity;
+struct EntityManager;
 
 struct Entity
 {
+  int		id;
   SDL_Point	position;
   SDL_Point	aabbSize;  // TODO AABBs
   SDL_Texture* 	texture;
 
+  struct EntityManager* entManager;
+
+  void (*onUpdate)(struct Entity* me);
   void (*onAabbIntersect)(struct Entity* me, struct Entity* intersectingEntity);
+
+  struct Entity* next;
 };
 
 
-void Entity_Init(struct Entity* ent);
+struct EntityManager
+{
+  int lifetimeEntitiesCreated;
+  struct Entity* first_ent;
+  struct Entity* current_ent;
+  struct Entity* new_ent;
+};
+
+struct Entity* EntityManager_CreateEntity(struct EntityManager* em);
+void EntityManager_RemoveEntity(struct EntityManager* em, struct Entity* ent);
+void Entity_Init(struct Entity* ent, int id);
 
 #endif
