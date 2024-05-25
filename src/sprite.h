@@ -21,10 +21,15 @@
 
 #include <SDL2/SDL.h>
 
+#define SPRITE_SPRITESHEET_PIXELS_PER_FRAME	16
+#define SPRITE_ANIMATION_FPS			1
+
 struct Sprite
 {
-  SDL_Texture* texture;
-  struct Sprite* next;
+  SDL_Texture* 		texture;  // TODO: Maybe rename this to "spritesheet" or something to that effect?
+  SDL_Rect		spritesheetCropRect;  // What portion of the spritesheet is rendered to the screen.
+  int			spritesheetLengthPx;
+  struct Sprite* 	next;
 };
 
 struct SpriteManager
@@ -36,5 +41,8 @@ struct SpriteManager
 void SpriteManager_Init(struct SpriteManager* sm);
 struct Sprite* SpriteManager_CreateSprite(struct SpriteManager* sm);
 void SpriteManager_RemoveSprite(struct SpriteManager* sm, struct Sprite* sprite);
+void SpriteManager_AnimateSprites(struct SpriteManager* sm);
+
+void Sprite_NextAnimation(struct Sprite* spr);
 
 #endif
