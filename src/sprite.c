@@ -32,6 +32,8 @@ struct Sprite* SpriteManager_CreateSprite(struct SpriteManager* sm, char* sprite
   newSpr->spritesheetLengthPx = spritesheetLengthPx;
   newSpr->spritesheetCropRect = (SDL_Rect){0, 0, SPRITE_SPRITESHEET_PIXELS_PER_FRAME, SPRITE_SPRITESHEET_PIXELS_PER_FRAME};
   free(tmp);
+
+  newSpr->_framesElapsed = 0;
   return newSpr;
 }
 
@@ -57,12 +59,17 @@ void SpriteManager_RemoveSprite(struct SpriteManager* sm, struct Sprite* sprite)
 }
 
 
-void SpriteManager_AnimateSprites(struct SpriteManager* sm)
+void SpriteManager_AnimateSprites(struct SpriteManager* sm, int gameFps)
 {
   struct Sprite* spr = sm->firstSpr;
   while (spr != NULL)
   {
-    Sprite_NextAnimation(spr);
+    if (spr->_framesElapsed >= gameFps - spr->animationFps)
+    {
+      Sprite_NextAnimation(spr);
+      spr->_framesElapsed = 0;
+    }
+    spr->_framesElapsed++;
     spr = spr->next;
   }
 }
@@ -71,7 +78,7 @@ void Sprite_NextAnimation(struct Sprite* spr)
 {
   if (spr->spritesheetCropRect.x + SPRITE_SPRITESHEET_PIXELS_PER_FRAME >= spr->spritesheetLengthPx)
   {
-    spr->spritesheetCropRect.x = 0;
+    spr->spritesheetCropRect.x = spr->loopAnimation ? 0 : spr->spritesheetCropRect.x;
     return;
   }
 

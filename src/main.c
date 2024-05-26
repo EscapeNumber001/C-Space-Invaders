@@ -36,6 +36,16 @@ static struct SDLGameContext sdlGameCtx;
 static struct SpriteManager sm;
 static struct EntityManager em;
 
+void BulletUpdate(struct Entity* ent)
+{
+  ent->position.y -= 5;
+  if (ent->position.y > HEIGHT)
+  {
+    EntityManager_RemoveEntity(&em, ent);
+    free(ent);
+  }
+}
+
 int main()
 {
   SDL_Init(SDL_INIT_EVERYTHING);
@@ -46,6 +56,11 @@ int main()
   SpriteManager_Init(&sm, sdlGameCtx.renderer);
 
   struct Sprite* sprite = SpriteManager_CreateSprite(&sm, "assets/animationtest.bmp", 64);
+  struct Sprite* bulletSpr = SpriteManager_CreateSprite(&sm, "assets/bullet.bmp", 32);
+  sprite->loopAnimation = true;
+  bulletSpr->loopAnimation = true;
+  bulletSpr->animationFps = 15;
+
   struct Entity* p = EntityManager_CreateEntity(&em);
   p->sprite = sprite;
   
@@ -68,20 +83,22 @@ int main()
       p->position.x -= 1;
     if (keyState[SDL_SCANCODE_D])
       p->position.x += 1;
-
-    /*struct Entity* ent = em.first_ent;
-    while (ent)
+    if (keyState[SDL_SCANCODE_SPACE])
     {
-      (ent->onUpdate)(ent);
-      ent = ent->next;
-    }*/
+      struct Entity* bullet = EntityManager_CreateEntity(&em);
+      bullet->position = p->position;
+      bullet->sprite = bulletSpr;
+      bullet->onUpdate = BulletUpdate;
+    }
 
-    SpriteManager_AnimateSprites(&sm);
-    SDL_SetRenderDrawColor(sdlGameCtx.renderer, 25, 25, 25, 25);
+    SpriteManager_AnimateSprites(&sm, FPS);
+    SDL_SetRenderDrawColor(sdlGameCtx.renderer, 255, 255, 255, 255);
     SDL_RenderClear(sdlGameCtx.renderer);
     struct Entity* ent = em.first_ent;
     while (ent)
     {
+      if (ent->onUpdate != NULL)
+	(ent->onUpdate)(ent);
       SDL_Rect screenRenderPos = (SDL_Rect){ent->position.x, ent->position.y, 100, 100};
       SDL_RenderCopy(sdlGameCtx.renderer, ent->sprite->texture, &ent->sprite->spritesheetCropRect, &screenRenderPos);
 

@@ -7,6 +7,7 @@ void Entity_Init(struct Entity* ent, int id)
   ent->aabbSize 	= (SDL_Point){0, 0};
   ent->sprite		= NULL;
   
+  ent->onUpdate		= NULL;
   ent->onAabbIntersect 	= NULL;
 }
 
@@ -49,6 +50,9 @@ void EntityManager_RemoveEntity(struct EntityManager* em, struct Entity* ent)
 
     e = e->next;
   }
+
+  if (ent == em->first_ent)
+    em->first_ent = NULL;
 
   if (prevEnt)
     prevEnt->next = ent->next;

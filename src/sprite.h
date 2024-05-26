@@ -31,8 +31,11 @@ struct Sprite
   SDL_Texture* 		texture;  // TODO: Maybe rename this to "spritesheet" or something to that effect?
   SDL_Rect		spritesheetCropRect;  // What portion of the spritesheet is rendered to the screen.
   int			spritesheetLengthPx;
+  int			animationFps;
   bool			loopAnimation;
   struct Sprite* 	next;
+
+  int 			_framesElapsed;
 };
 
 struct SpriteManager
@@ -45,7 +48,7 @@ struct SpriteManager
 void SpriteManager_Init(struct SpriteManager* sm, SDL_Renderer* renderer);
 struct Sprite* SpriteManager_CreateSprite(struct SpriteManager* sm, char* spritesheetPath, int spritesheetLengthPx);
 void SpriteManager_RemoveSprite(struct SpriteManager* sm, struct Sprite* sprite);
-void SpriteManager_AnimateSprites(struct SpriteManager* sm);
+void SpriteManager_AnimateSprites(struct SpriteManager* sm, int gameFps);
 
 void Sprite_NextAnimation(struct Sprite* spr);
 
