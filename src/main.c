@@ -27,6 +27,7 @@ struct SDLGameContext
 {
   SDL_Window* win;
   SDL_Renderer* renderer;
+  int lastFrameTicks;
 };
 
 static struct SDLGameContext sdlGameCtx;
@@ -42,21 +43,29 @@ int main()
   sdlGameCtx.win = SDL_CreateWindow("Game", 0, 0, WIDTH, HEIGHT, SDL_WINDOW_OPENGL);
   sdlGameCtx.renderer = SDL_CreateRenderer(sdlGameCtx.win, -1, SDL_RENDERER_ACCELERATED);
 
-  SDL_Surface* tmpSurf = SDL_LoadBMP("assets/player.bmp");
+  SDL_Surface* tmpSurf = SDL_LoadBMP("assets/animationtest.bmp");
   SDL_Texture* entTexture = SDL_CreateTextureFromSurface(sdlGameCtx.renderer, tmpSurf);
   struct Sprite* sprite = SpriteManager_CreateSprite(&sm);
   sprite->texture = entTexture;
+  sprite->spritesheetLengthPx = 64;
   free(tmpSurf);
   
   while (!SDL_QuitRequested())
   {
+    if (SDL_GetTicks() - sdlGameCtx.lastFrameTicks < 1000 / 1) // last number is fps
+    {
+      continue;
+    }
+    sdlGameCtx.lastFrameTicks = SDL_GetTicks();
+    
+    SpriteManager_AnimateSprites(&sm);
     SDL_SetRenderDrawColor(sdlGameCtx.renderer, 255, 255, 255, 255);
     SDL_RenderClear(sdlGameCtx.renderer);
     struct Sprite* spr = sm.firstSpr;
     while (spr)
     {
       SDL_Rect x = (SDL_Rect){0, 0, 100, 100};
-      SDL_RenderCopy(sdlGameCtx.renderer, spr->texture, NULL, &x);
+      SDL_RenderCopy(sdlGameCtx.renderer, spr->texture, &spr->spritesheetCropRect, &x);
       //SpriteManager_RemoveSprite(&sm, spr);
       spr = spr->next;
     }
