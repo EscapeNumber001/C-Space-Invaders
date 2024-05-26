@@ -19,7 +19,6 @@
 #include <SDL2/SDL.h>
 #include "entity.h"
 #include "sprite.h"
-#include "entities/player.h"
 
 #define WIDTH   	640
 #define HEIGHT  	480
@@ -36,11 +35,6 @@ static struct SDLGameContext sdlGameCtx;
 
 static struct SpriteManager sm;
 static struct EntityManager em;
-
-void EntUpdateTest(struct Entity* me)
-{
-  printf("%d\n", me->id);
-}
 
 int main()
 {
@@ -66,6 +60,7 @@ int main()
     {
       continue;
     }
+
     sdlGameCtx.lastFrameTicks = SDL_GetTicks();
 
     SDL_PumpEvents(); 
@@ -74,6 +69,10 @@ int main()
       p->position.y -= 1;
     if (keyState[SDL_SCANCODE_S])
       p->position.y += 1;
+    if (keyState[SDL_SCANCODE_A])
+      p->position.x -= 1;
+    if (keyState[SDL_SCANCODE_D])
+      p->position.x += 1;
 
     /*struct Entity* ent = em.first_ent;
     while (ent)
@@ -83,14 +82,17 @@ int main()
     }*/
 
     SpriteManager_AnimateSprites(&sm);
-    SDL_SetRenderDrawColor(sdlGameCtx.renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(sdlGameCtx.renderer, 25, 25, 25, 25);
     SDL_RenderClear(sdlGameCtx.renderer);
     struct Entity* ent = em.first_ent;
     while (ent)
     {
-      SDL_Rect x = (SDL_Rect){ent->position.x, ent->position.y, 100, 100};
-      SDL_RenderCopy(sdlGameCtx.renderer, ent->sprite->texture, &ent->sprite->spritesheetCropRect, &x);
-      //SpriteManager_RemoveSprite(&sm, spr);
+      if (ent->sprite != NULL)
+      {
+	SDL_Rect screenRenderPos = (SDL_Rect){ent->position.x, ent->position.y, 100, 100};
+	SDL_RenderCopy(sdlGameCtx.renderer, ent->sprite->texture, &ent->sprite->spritesheetCropRect, &screenRenderPos);
+      }
+
       ent = ent->next;
     }
 

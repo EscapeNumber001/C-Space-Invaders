@@ -24,6 +24,7 @@
 
 #define SPRITE_SPRITESHEET_PIXELS_PER_FRAME	16
 #define SPRITE_ANIMATION_FPS			1
+#define SPRITE_SPRITESHEET_COLOR_KEY		(SDL_Color){255, 0, 255, 255} // Magenta
 
 struct Sprite
 {
