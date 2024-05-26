@@ -5,7 +5,7 @@ void Entity_Init(struct Entity* ent, int id)
   ent->id		= id;
   ent->position 	= (SDL_Point){0, 0};
   ent->aabbSize 	= (SDL_Point){0, 0};
-  ent->texture		= NULL;
+  ent->sprite		= NULL;
   
   ent->onAabbIntersect 	= NULL;
 }

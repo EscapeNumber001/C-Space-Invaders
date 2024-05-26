@@ -30,10 +30,10 @@ struct EntityManager;
 
 struct Entity
 {
-  int		id;
-  SDL_Point	position;
-  SDL_Point	aabbSize;  // TODO AABBs
-  SDL_Texture* 	texture;
+  int			id;
+  SDL_Point		position;
+  SDL_Point		aabbSize;  // TODO AABBs
+  struct Sprite* 	sprite;
 
   struct EntityManager* entManager;
 

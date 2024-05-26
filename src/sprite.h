@@ -20,6 +20,7 @@
 #define _SPRITE_H_
 
 #include <SDL2/SDL.h>
+#include <stdbool.h>
 
 #define SPRITE_SPRITESHEET_PIXELS_PER_FRAME	16
 #define SPRITE_ANIMATION_FPS			1
@@ -29,6 +30,7 @@ struct Sprite
   SDL_Texture* 		texture;  // TODO: Maybe rename this to "spritesheet" or something to that effect?
   SDL_Rect		spritesheetCropRect;  // What portion of the spritesheet is rendered to the screen.
   int			spritesheetLengthPx;
+  bool			loopAnimation;
   struct Sprite* 	next;
 };
 

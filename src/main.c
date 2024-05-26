@@ -19,9 +19,11 @@
 #include <SDL2/SDL.h>
 #include "entity.h"
 #include "sprite.h"
+#include "entities/player.h"
 
 #define WIDTH   	640
 #define HEIGHT  	480
+#define FPS		30
 
 struct SDLGameContext
 {
@@ -34,6 +36,11 @@ static struct SDLGameContext sdlGameCtx;
 
 static struct SpriteManager sm;
 static struct EntityManager em;
+
+void EntUpdateTest(struct Entity* me)
+{
+  printf("%d\n", me->id);
+}
 
 int main()
 {
@@ -50,26 +57,42 @@ int main()
   sprite->spritesheetLengthPx = 64;
   free(tmpSurf);
   
+  struct Entity* p = EntityManager_CreateEntity(&em);
+  p->sprite = sprite;
+  
   while (!SDL_QuitRequested())
   {
-    if (SDL_GetTicks() - sdlGameCtx.lastFrameTicks < 1000 / 1) // last number is fps
+    if (SDL_GetTicks() - sdlGameCtx.lastFrameTicks < 1000 / FPS)
     {
       continue;
     }
     sdlGameCtx.lastFrameTicks = SDL_GetTicks();
-    
+
+    SDL_PumpEvents(); 
+    const Uint8* keyState = SDL_GetKeyboardState(NULL);
+    if (keyState[SDL_SCANCODE_W])
+      p->position.y -= 1;
+    if (keyState[SDL_SCANCODE_S])
+      p->position.y += 1;
+
+    /*struct Entity* ent = em.first_ent;
+    while (ent)
+    {
+      (ent->onUpdate)(ent);
+      ent = ent->next;
+    }*/
+
     SpriteManager_AnimateSprites(&sm);
     SDL_SetRenderDrawColor(sdlGameCtx.renderer, 255, 255, 255, 255);
     SDL_RenderClear(sdlGameCtx.renderer);
-    struct Sprite* spr = sm.firstSpr;
-    while (spr)
+    struct Entity* ent = em.first_ent;
+    while (ent)
     {
-      SDL_Rect x = (SDL_Rect){0, 0, 100, 100};
-      SDL_RenderCopy(sdlGameCtx.renderer, spr->texture, &spr->spritesheetCropRect, &x);
+      SDL_Rect x = (SDL_Rect){ent->position.x, ent->position.y, 100, 100};
+      SDL_RenderCopy(sdlGameCtx.renderer, ent->sprite->texture, &ent->sprite->spritesheetCropRect, &x);
       //SpriteManager_RemoveSprite(&sm, spr);
-      spr = spr->next;
+      ent = ent->next;
     }
-
 
     SDL_RenderPresent(sdlGameCtx.renderer);
   }
