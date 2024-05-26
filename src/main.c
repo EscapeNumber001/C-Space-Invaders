@@ -39,18 +39,13 @@ static struct EntityManager em;
 int main()
 {
   SDL_Init(SDL_INIT_EVERYTHING);
-  EntityManager_Init(&em);
-  SpriteManager_Init(&sm);
   sdlGameCtx.win = SDL_CreateWindow("Game", 0, 0, WIDTH, HEIGHT, SDL_WINDOW_OPENGL);
   sdlGameCtx.renderer = SDL_CreateRenderer(sdlGameCtx.win, -1, SDL_RENDERER_ACCELERATED);
 
-  SDL_Surface* tmpSurf = SDL_LoadBMP("assets/animationtest.bmp");
-  SDL_Texture* entTexture = SDL_CreateTextureFromSurface(sdlGameCtx.renderer, tmpSurf);
-  struct Sprite* sprite = SpriteManager_CreateSprite(&sm);
-  sprite->texture = entTexture;
-  sprite->spritesheetLengthPx = 64;
-  free(tmpSurf);
-  
+  EntityManager_Init(&em);
+  SpriteManager_Init(&sm, sdlGameCtx.renderer);
+
+  struct Sprite* sprite = SpriteManager_CreateSprite(&sm, "assets/animationtest.bmp", 64);
   struct Entity* p = EntityManager_CreateEntity(&em);
   p->sprite = sprite;
   
@@ -87,11 +82,8 @@ int main()
     struct Entity* ent = em.first_ent;
     while (ent)
     {
-      if (ent->sprite != NULL)
-      {
-	SDL_Rect screenRenderPos = (SDL_Rect){ent->position.x, ent->position.y, 100, 100};
-	SDL_RenderCopy(sdlGameCtx.renderer, ent->sprite->texture, &ent->sprite->spritesheetCropRect, &screenRenderPos);
-      }
+      SDL_Rect screenRenderPos = (SDL_Rect){ent->position.x, ent->position.y, 100, 100};
+      SDL_RenderCopy(sdlGameCtx.renderer, ent->sprite->texture, &ent->sprite->spritesheetCropRect, &screenRenderPos);
 
       ent = ent->next;
     }

@@ -37,12 +37,13 @@ struct Sprite
 
 struct SpriteManager
 {
+  SDL_Renderer* renderer;
   struct Sprite* firstSpr;
   struct Sprite* currentSpr;
 };
 
-void SpriteManager_Init(struct SpriteManager* sm);
-struct Sprite* SpriteManager_CreateSprite(struct SpriteManager* sm);
+void SpriteManager_Init(struct SpriteManager* sm, SDL_Renderer* renderer);
+struct Sprite* SpriteManager_CreateSprite(struct SpriteManager* sm, char* spritesheetPath, int spritesheetLengthPx);
 void SpriteManager_RemoveSprite(struct SpriteManager* sm, struct Sprite* sprite);
 void SpriteManager_AnimateSprites(struct SpriteManager* sm);
 

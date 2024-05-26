@@ -1,23 +1,37 @@
 #include "sprite.h"
 
-void SpriteManager_Init(struct SpriteManager* sm)
+void SpriteManager_Init(struct SpriteManager* sm, SDL_Renderer* renderer)
 {
   sm->firstSpr   = NULL;
   sm->currentSpr = NULL;
+  sm->renderer   = renderer;
 }
 
-struct Sprite* SpriteManager_CreateSprite(struct SpriteManager* sm)
+struct Sprite* SpriteManager_CreateSprite(struct SpriteManager* sm, char* spritesheetPath, int spritesheetLengthPx)
 {
+  // Add the sprite to the linked list
   struct Sprite* newSpr = malloc(sizeof(struct Sprite));
   if (sm->firstSpr == NULL)
     sm->firstSpr = newSpr;
 
   newSpr->next = NULL;
-  newSpr->spritesheetCropRect = (SDL_Rect){0, 0, SPRITE_SPRITESHEET_PIXELS_PER_FRAME, SPRITE_SPRITESHEET_PIXELS_PER_FRAME};
-
   if (sm->currentSpr)
     sm->currentSpr->next = newSpr;
+
   sm->currentSpr = newSpr;
+
+  // Configure the sprite's texture
+  SDL_Surface* tmp = SDL_LoadBMP(spritesheetPath);
+  SDL_assert(tmp != NULL);
+
+  SDL_SetColorKey(tmp, 1, SDL_MapRGB(tmp->format, SPRITE_SPRITESHEET_COLOR_KEY.r, SPRITE_SPRITESHEET_COLOR_KEY.g, SPRITE_SPRITESHEET_COLOR_KEY.b));
+  SDL_Texture* txt = SDL_CreateTextureFromSurface(sm->renderer, tmp); 
+  SDL_assert(txt != NULL);
+
+  newSpr->texture = txt;
+  newSpr->spritesheetLengthPx = spritesheetLengthPx;
+  newSpr->spritesheetCropRect = (SDL_Rect){0, 0, SPRITE_SPRITESHEET_PIXELS_PER_FRAME, SPRITE_SPRITESHEET_PIXELS_PER_FRAME};
+  free(tmp);
   return newSpr;
 }
 
@@ -63,6 +77,3 @@ void Sprite_NextAnimation(struct Sprite* spr)
 
   spr->spritesheetCropRect.x += SPRITE_SPRITESHEET_PIXELS_PER_FRAME;
 }
-
-
-
