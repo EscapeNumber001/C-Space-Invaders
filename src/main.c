@@ -66,7 +66,7 @@ int main()
   
   while (!SDL_QuitRequested())
   {
-    if (SDL_GetTicks() - sdlGameCtx.lastFrameTicks < 1000 / FPS)
+    if (SDL_GetTicks() - sdlGameCtx.lastFrameTicks < 1000 / FPS > 0)
     {
       continue;
     }
