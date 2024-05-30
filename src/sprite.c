@@ -4,10 +4,9 @@ void SpriteManager_Init(struct SpriteManager* sm, SDL_Renderer* renderer)
 {
   sm->firstSpr   = NULL;
   sm->currentSpr = NULL;
-  sm->renderer   = renderer;
 }
 
-struct Sprite* SpriteManager_CreateSprite(struct SpriteManager* sm, char* spritesheetPath, int spritesheetLengthPx)
+struct Sprite* SpriteManager_CreateSprite(struct SpriteManager* sm, struct CachedTexture* texture)
 {
   // Add the sprite to the linked list
   struct Sprite* newSpr = malloc(sizeof(struct Sprite));
@@ -20,19 +19,8 @@ struct Sprite* SpriteManager_CreateSprite(struct SpriteManager* sm, char* sprite
 
   sm->currentSpr = newSpr;
 
-  // Configure the sprite's texture
-  SDL_Surface* tmp = SDL_LoadBMP(spritesheetPath);
-  SDL_assert(tmp != NULL);
-
-  SDL_SetColorKey(tmp, 1, SDL_MapRGB(tmp->format, SPRITE_SPRITESHEET_COLOR_KEY.r, SPRITE_SPRITESHEET_COLOR_KEY.g, SPRITE_SPRITESHEET_COLOR_KEY.b));
-  SDL_Texture* txt = SDL_CreateTextureFromSurface(sm->renderer, tmp); 
-  SDL_assert(txt != NULL);
-
-  newSpr->texture = txt;
-  newSpr->spritesheetLengthPx = spritesheetLengthPx;
+  newSpr->texture = texture;
   newSpr->spritesheetCropRect = (SDL_Rect){0, 0, SPRITE_SPRITESHEET_PIXELS_PER_FRAME, SPRITE_SPRITESHEET_PIXELS_PER_FRAME};
-  free(tmp);
-
   newSpr->_framesElapsed = 0;
   return newSpr;
 }
@@ -64,7 +52,7 @@ void SpriteManager_AnimateSprites(struct SpriteManager* sm, int gameFps)
   struct Sprite* spr = sm->firstSpr;
   while (spr != NULL)
   {
-    if (spr->_framesElapsed >= gameFps - spr->animationFps)
+    if (spr->_framesElapsed >= gameFps - spr->texture->animationFps)
     {
       Sprite_NextAnimation(spr);
       spr->_framesElapsed = 0;
@@ -76,9 +64,9 @@ void SpriteManager_AnimateSprites(struct SpriteManager* sm, int gameFps)
 
 void Sprite_NextAnimation(struct Sprite* spr)
 {
-  if (spr->spritesheetCropRect.x + SPRITE_SPRITESHEET_PIXELS_PER_FRAME >= spr->spritesheetLengthPx)
+  if (spr->spritesheetCropRect.x + SPRITE_SPRITESHEET_PIXELS_PER_FRAME >= spr->texture->textureLengthPx)
   {
-    spr->spritesheetCropRect.x = spr->loopAnimation ? 0 : spr->spritesheetCropRect.x;
+    spr->spritesheetCropRect.x = spr->texture->loopAnimation ? 0 : spr->spritesheetCropRect.x;
     return;
   }
 

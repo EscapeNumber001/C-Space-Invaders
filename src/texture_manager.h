@@ -25,6 +25,7 @@
 struct CachedTexture
 {
   SDL_Texture* 		texture;
+  char*			filename;
   int			textureLengthPx;
   int			animationFps;
   bool			loopAnimation;
@@ -39,4 +40,7 @@ struct TextureManager
 
 // Returns false on error.
 bool TextureManager_Load(SDL_Renderer* rend, struct TextureManager* tm, char* filename);
+bool TextureManager_LoadEx(SDL_Renderer* rend, struct TextureManager* tm, char* filename,
+			    int textureLengthPx, int animationFps, bool loopAnimation);
+struct CachedTexture* TextureManager_GetTexture(struct TextureManager* tm, char* filename);
 #endif

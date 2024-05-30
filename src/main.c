@@ -19,6 +19,7 @@
 #include <SDL2/SDL.h>
 #include "entity.h"
 #include "sprite.h"
+#include "texture_manager.h"
 
 #define WIDTH   	640
 #define HEIGHT  	480
@@ -35,6 +36,7 @@ static struct SDLGameContext sdlGameCtx;
 
 static struct SpriteManager sm;
 static struct EntityManager em;
+static struct TextureManager tm;
 
 void BulletUpdate(struct Entity* ent)
 {
@@ -54,12 +56,11 @@ int main()
 
   EntityManager_Init(&em);
   SpriteManager_Init(&sm, sdlGameCtx.renderer);
+  TextureManager_LoadEx(sdlGameCtx.renderer, &tm, "assets/animationtest.bmp", 64, 15, true);
+  TextureManager_LoadEx(sdlGameCtx.renderer, &tm, "assets/bullet.bmp", 32, 15, true);
 
-  struct Sprite* sprite = SpriteManager_CreateSprite(&sm, "assets/animationtest.bmp", 64);
-  struct Sprite* bulletSpr = SpriteManager_CreateSprite(&sm, "assets/bullet.bmp", 32);
-  sprite->loopAnimation = true;
-  bulletSpr->loopAnimation = true;
-  bulletSpr->animationFps = 15;
+  struct Sprite* sprite = SpriteManager_CreateSprite(&sm, TextureManager_GetTexture(&tm, "assets/animationtest.bmp"));
+  struct Sprite* bulletSpr = SpriteManager_CreateSprite(&sm, TextureManager_GetTexture(&tm, "assets/bullet.bmp"));
 
   struct Entity* p = EntityManager_CreateEntity(&em);
   p->sprite = sprite;
@@ -100,7 +101,7 @@ int main()
       if (ent->onUpdate != NULL)
 	(ent->onUpdate)(ent);
       SDL_Rect screenRenderPos = (SDL_Rect){ent->position.x, ent->position.y, 100, 100};
-      SDL_RenderCopy(sdlGameCtx.renderer, ent->sprite->texture, &ent->sprite->spritesheetCropRect, &screenRenderPos);
+      SDL_RenderCopy(sdlGameCtx.renderer, ent->sprite->texture->texture, &ent->sprite->spritesheetCropRect, &screenRenderPos);
 
       ent = ent->next;
     }
