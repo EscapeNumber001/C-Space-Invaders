@@ -34,6 +34,7 @@ struct Entity
   SDL_Point		position;
   SDL_Point		aabbSize;  // TODO AABBs
   struct Sprite* 	sprite;
+  bool			_markedForRemoval;  // READ-ONLY value
 
   struct EntityManager* entManager;
 

@@ -26,14 +26,15 @@ void BulletUpdate(struct Entity* ent)
 
   if (ent->position.y > HEIGHT)
   {
-    EntityManager_RemoveEntity(&em, ent);
-    free(ent);
+    ent->_markedForRemoval = true;
+    //EntityManager_RemoveEntity(&em, ent);
+    //free(ent);
   }
 }
 
 void DebugOnIntersect(struct Entity* me, struct Entity* other)
 {
-  printf("I've been hit! (%d, %d)\n", me->id, other->id);
+  //printf("I've been hit! (%d, %d)\n", me->id, other->id);
 }
 
 int main()
@@ -121,7 +122,15 @@ int main()
       if (ent->sprite != NULL)
 	SDL_RenderCopy(sdlGameCtx.renderer, ent->sprite->texture->texture, &ent->sprite->spritesheetCropRect, &screenRenderPos);
 
+      
+      struct Entity* oldEnt = ent;
       ent = ent->next;
+
+      if (oldEnt->_markedForRemoval)
+      {
+	EntityManager_RemoveEntity(&em, oldEnt);
+	free(oldEnt);
+      }
     }
 
     SDL_RenderPresent(sdlGameCtx.renderer);

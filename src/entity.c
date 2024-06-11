@@ -6,6 +6,7 @@ void Entity_Init(struct Entity* ent, int id)
   ent->position 	= (SDL_Point){0, 0};
   ent->aabbSize 	= (SDL_Point){0, 0};
   ent->sprite		= NULL;
+  ent->_markedForRemoval = false;
   
   ent->onUpdate		= NULL;
   ent->onAabbIntersect 	= NULL;
@@ -17,7 +18,6 @@ void Entity_Init(struct Entity* ent, int id)
 struct Entity* EntityManager_CreateEntity(struct EntityManager* em)
 {
   struct Entity* newEnt = malloc(sizeof(struct Entity));
-  em->new_ent = newEnt;
   newEnt->entManager = em;
   Entity_Init(newEnt, em->lifetimeEntitiesCreated);
   if (em->first_ent == NULL)
@@ -52,10 +52,20 @@ void EntityManager_RemoveEntity(struct EntityManager* em, struct Entity* ent)
   }
 
   if (ent == em->first_ent)
-    em->first_ent = NULL;
+  {
+    if (ent->next)
+      em->first_ent = ent->next;
+    else
+      em->first_ent = NULL;
+  }
+
+  if (em->current_ent == ent)
+    em->current_ent = prevEnt ? prevEnt : em->first_ent;
 
   if (prevEnt)
     prevEnt->next = ent->next;
+  else
+    em->first_ent = ent->next;
 }
 
 
