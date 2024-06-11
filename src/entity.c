@@ -32,11 +32,10 @@ struct Entity* EntityManager_CreateEntity(struct EntityManager* em)
   return newEnt;
 }
 
-
 /*
  * Removes ent from em's linked list. **Does not free ent!**
  */
-void EntityManager_RemoveEntity(struct EntityManager* em, struct Entity* ent)
+void entitymanager_internal_RemoveEntityFromLL(struct EntityManager* em, struct Entity* ent)
 {
   struct Entity* prevEnt = NULL;
   struct Entity* e = em->first_ent;
@@ -80,4 +79,10 @@ SDL_Rect Entity_CalculateAABBRect(struct Entity* ent)
 {
   return (SDL_Rect){ent->position.x, ent->position.y,
     ent->aabbSize.x, ent->aabbSize.y};
+}
+
+
+void Entity_Destroy(struct EntityManager* em, struct Entity* ent)
+{
+  ent->_markedForRemoval = true;
 }

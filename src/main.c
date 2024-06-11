@@ -22,9 +22,9 @@
 
 void BulletUpdate(struct Entity* ent)
 {
-  ent->position.y += 5;
+  ent->position.y -= 5;
 
-  if (ent->position.y > HEIGHT)
+  if (ent->position.y < 0)
   {
     ent->_markedForRemoval = true;
     //EntityManager_RemoveEntity(&em, ent);
@@ -93,10 +93,12 @@ int main()
     struct Entity* ent = em.first_ent;
     while (ent)
     {
+      // Update entities
       if (ent->onUpdate != NULL)
 	(ent->onUpdate)(ent);
 
-
+      
+      // Check collisions
       struct Entity* checkCollisionEnt = em.first_ent;
       while (checkCollisionEnt)
       {
@@ -118,17 +120,18 @@ int main()
       }
 
 
+      // Rendering
       SDL_Rect screenRenderPos = (SDL_Rect){ent->position.x, ent->position.y, 100, 100};
       if (ent->sprite != NULL)
 	SDL_RenderCopy(sdlGameCtx.renderer, ent->sprite->texture->texture, &ent->sprite->spritesheetCropRect, &screenRenderPos);
 
       
+      // Clean up entities which are marked for removal
       struct Entity* oldEnt = ent;
       ent = ent->next;
-
       if (oldEnt->_markedForRemoval)
       {
-	EntityManager_RemoveEntity(&em, oldEnt);
+	entitymanager_internal_RemoveEntityFromLL(&em, oldEnt);
 	free(oldEnt);
       }
     }

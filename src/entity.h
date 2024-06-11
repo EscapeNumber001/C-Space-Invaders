@@ -23,8 +23,6 @@
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 
-#define ENTITY_LIST_SIZE 4096
-
 struct Entity;
 struct EntityManager;
 
@@ -54,10 +52,23 @@ struct EntityManager
 };
 
 
+// EntityManager public funcs:
 void EntityManager_Init(struct EntityManager* em);
 struct Entity* EntityManager_CreateEntity(struct EntityManager* em);
-void EntityManager_RemoveEntity(struct EntityManager* em, struct Entity* ent);
+
+
+// EntityManager internal funcs:
+// WARN: Does not free ent! You should use Entity_Destroy instead.
+void entitymanager_internal_RemoveEntityFromLL(struct EntityManager* em, struct Entity* ent);
+
+
+// Entity public funcs:
 void Entity_Init(struct Entity* ent, int id);
+
+// Marks ent for deletion at the end of the frame.
+// This is the correct way to remove an entity.
+void Entity_Destroy(struct EntityManager* em, struct Entity* ent);
+
 SDL_Rect Entity_CalculateAABBRect(struct Entity* ent);
 
 #endif
