@@ -65,3 +65,9 @@ void EntityManager_Init(struct EntityManager* em)
   em->current_ent = NULL;
   em->lifetimeEntitiesCreated = 0;
 }
+
+SDL_Rect Entity_CalculateAABBRect(struct Entity* ent)
+{
+  return (SDL_Rect){ent->position.x, ent->position.y,
+    ent->aabbSize.x, ent->aabbSize.y};
+}

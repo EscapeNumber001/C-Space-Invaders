@@ -18,34 +18,22 @@
 //#include <stdlib.h>
 #include <SDL2/SDL.h>
 #include "entity.h"
-#include "sprite.h"
-#include "texture_manager.h"
-
-#define WIDTH   	640
-#define HEIGHT  	480
-#define FPS		30
-
-struct SDLGameContext
-{
-  SDL_Window* win;
-  SDL_Renderer* renderer;
-  int lastFrameTicks;
-};
-
-static struct SDLGameContext sdlGameCtx;
-
-static struct SpriteManager sm;
-static struct EntityManager em;
-static struct TextureManager tm;
+#include "globals.h"
 
 void BulletUpdate(struct Entity* ent)
 {
-  ent->position.y -= 5;
+  ent->position.y += 5;
+
   if (ent->position.y > HEIGHT)
   {
     EntityManager_RemoveEntity(&em, ent);
     free(ent);
   }
+}
+
+void DebugOnIntersect(struct Entity* me, struct Entity* other)
+{
+  printf("I've been hit! (%d, %d)\n", me->id, other->id);
 }
 
 int main()
@@ -63,7 +51,12 @@ int main()
   struct Sprite* bulletSpr = SpriteManager_CreateSprite(&sm, TextureManager_GetTexture(&tm, "assets/bullet.bmp"));
 
   struct Entity* p = EntityManager_CreateEntity(&em);
+  p->aabbSize = (SDL_Point){100, 100};
+  struct Entity* testEnt = EntityManager_CreateEntity(&em);
+
   p->sprite = sprite;
+  p->onAabbIntersect = DebugOnIntersect;
+  testEnt->sprite = sprite;
   
   while (!SDL_QuitRequested())
   {
@@ -87,6 +80,7 @@ int main()
     if (keyState[SDL_SCANCODE_SPACE])
     {
       struct Entity* bullet = EntityManager_CreateEntity(&em);
+      bullet->aabbSize = (SDL_Point){100, 100};
       bullet->position = p->position;
       bullet->sprite = bulletSpr;
       bullet->onUpdate = BulletUpdate;
@@ -100,8 +94,32 @@ int main()
     {
       if (ent->onUpdate != NULL)
 	(ent->onUpdate)(ent);
+
+
+      struct Entity* checkCollisionEnt = em.first_ent;
+      while (checkCollisionEnt)
+      {
+	if (ent == checkCollisionEnt)
+	{
+	  checkCollisionEnt = checkCollisionEnt->next;
+	  continue;
+	}
+
+	SDL_Rect a, b;
+	a = Entity_CalculateAABBRect(ent);
+	b = Entity_CalculateAABBRect(checkCollisionEnt);
+	if (SDL_HasIntersection(&a, &b))
+	{
+	  if (ent->onAabbIntersect != NULL)
+	    (ent->onAabbIntersect)(ent, checkCollisionEnt);
+	}
+	checkCollisionEnt = checkCollisionEnt->next;
+      }
+
+
       SDL_Rect screenRenderPos = (SDL_Rect){ent->position.x, ent->position.y, 100, 100};
-      SDL_RenderCopy(sdlGameCtx.renderer, ent->sprite->texture->texture, &ent->sprite->spritesheetCropRect, &screenRenderPos);
+      if (ent->sprite != NULL)
+	SDL_RenderCopy(sdlGameCtx.renderer, ent->sprite->texture->texture, &ent->sprite->spritesheetCropRect, &screenRenderPos);
 
       ent = ent->next;
     }
