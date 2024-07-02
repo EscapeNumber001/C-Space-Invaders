@@ -1,0 +1,6 @@
+[ ] 2024-06-02 Make it possible to hook onUpdate and onAabbIntersect +Lua +Entity
+[ ] 2024-06-02 Add a function to return all current Entity objects +Lua +Entity
+[ ] 2024-06-02 Add a function to move an entity from Lua +Lua +Entity
+[ ] 2024-06-02 Allow the animation system to support spritesheets with frames larger than 16x16 +Sprite +Animation
+[ ] 2024-06-02 Fix the linked list code in TextureManager so it mirrors that of EntityManager +LinkedList +Texture
+[x] 2024-06-02 2024-06-02 Add a function to unload CachedTextures from memory +Texture
