@@ -30,7 +30,7 @@ struct Entity
 {
   int			id;
   SDL_Point		position;
-  SDL_Point		aabbSize;  // TODO AABBs
+  SDL_Point		aabbSize;
   struct Sprite* 	sprite;
   bool			_markedForRemoval;  // READ-ONLY value
 

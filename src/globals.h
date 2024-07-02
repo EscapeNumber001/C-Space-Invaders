@@ -29,17 +29,5 @@
 #define HEIGHT  	480
 #define FPS		60
 
-struct SDLGameContext
-{
-  SDL_Window* win;
-  SDL_Renderer* renderer;
-  int lastFrameTicks;
-};
-
-static struct SDLGameContext sdlGameCtx;
-
-static struct SpriteManager sm;
-static struct EntityManager em;
-static struct TextureManager tm;
 
 #endif

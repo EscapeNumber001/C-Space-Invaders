@@ -35,12 +35,14 @@ bool TextureManager_LoadEx(SDL_Renderer* rend, struct TextureManager* tm, char* 
   SDL_Surface* tmp = SDL_LoadBMP(filename);
   if (tmp == NULL)
   {
+    printf("[TextureManager][ERROR] Encountered SDL Error while loading texture: %s", SDL_GetError());
     free(t);
     return false;
   }
   SDL_Texture* tmp2 = SDL_CreateTextureFromSurface(rend, tmp);
   if (tmp2 == NULL)
   {
+    printf("[TextureManager][ERROR] Encountered SDL Error while converting surface to texture: %s", SDL_GetError());
     free(t);
     free(tmp);
     return false;

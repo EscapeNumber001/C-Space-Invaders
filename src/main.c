@@ -19,6 +19,20 @@
 #include <SDL2/SDL.h>
 #include "entity.h"
 #include "globals.h"
+#include "lua_scripting.h"
+
+struct SDLGameContext
+{
+  SDL_Window* win;
+  SDL_Renderer* renderer;
+  int lastFrameTicks;
+};
+
+struct SDLGameContext sdlGameCtx;
+
+struct SpriteManager sm;
+struct EntityManager em;
+struct TextureManager tm;
 
 void BulletUpdate(struct Entity* ent)
 {
@@ -45,19 +59,19 @@ int main()
 
   EntityManager_Init(&em);
   SpriteManager_Init(&sm, sdlGameCtx.renderer);
-  TextureManager_LoadEx(sdlGameCtx.renderer, &tm, "assets/animationtest.bmp", 64, 15, true);
+  //TextureManager_LoadEx(sdlGameCtx.renderer, &tm, "assets/animationtest.bmp", 64, 15, true);
+  TextureManager_LoadEx(sdlGameCtx.renderer, &tm, "assets/player.bmp", 16, 30, true);
   TextureManager_LoadEx(sdlGameCtx.renderer, &tm, "assets/bullet.bmp", 32, 15, true);
 
-  struct Sprite* sprite = SpriteManager_CreateSprite(&sm, TextureManager_GetTexture(&tm, "assets/animationtest.bmp"));
+  struct Sprite* sprite = SpriteManager_CreateSprite(&sm, TextureManager_GetTexture(&tm, "assets/player.bmp"));
   struct Sprite* bulletSpr = SpriteManager_CreateSprite(&sm, TextureManager_GetTexture(&tm, "assets/bullet.bmp"));
 
   struct Entity* p = EntityManager_CreateEntity(&em);
   p->aabbSize = (SDL_Point){100, 100};
-  struct Entity* testEnt = EntityManager_CreateEntity(&em);
+  LuaSystem_Init(sdlGameCtx.renderer, &em, &sm, &tm);
 
   p->sprite = sprite;
   p->onAabbIntersect = DebugOnIntersect;
-  testEnt->sprite = sprite;
   
   while (!SDL_QuitRequested())
   {
