@@ -26,18 +26,24 @@ struct TextureManager* luaSystem_tm;
 void LuaSystem_Init(SDL_Renderer* renderer, struct EntityManager* em, struct SpriteManager* sm, struct TextureManager* tm)
 {
   luaState = luaL_newstate(); 
+  luaL_openlibs(luaState);
   lua_register(luaState, "CreateEntity", LuaSystem_lFunc_CreateEntity);
   lua_register(luaState, "DestroyEntity", LuaSystem_lFunc_DestroyEntity);
   lua_register(luaState, "LoadTexture", LuaSystem_lFunc_LoadTexture);
   lua_register(luaState, "SetEntityTexture", LuaSystem_lFunc_SetEntityTexture);
   lua_register(luaState, "MoveEntity", LuaSystem_lFunc_MoveEntity);
+  lua_register(luaState, "GetEntities", LuaSystem_lFunc_GetEntities);
 
   luaSystem_renderer = renderer;
   luaSystem_em = em;
   luaSystem_sm = sm;
   luaSystem_tm = tm;
   // DEBUG Runs a preset Lua test script
-  luaL_dofile(luaState, "scripts/debug.lua");
+  int result = luaL_dofile(luaState, "scripts/debug.lua");
+  if (result != LUA_OK)
+  {
+    printf("[ERROR] Lua error; script halted! Info: %s\n", lua_tostring(luaState, 1));
+  }
 }
 
 int LuaSystem_lFunc_CreateEntity(lua_State* l)
@@ -59,6 +65,22 @@ int LuaSystem_lFunc_DestroyEntity(lua_State* l)
   struct Entity* e = (struct Entity*)lua_topointer(l, 1);
   Entity_Destroy(luaSystem_em, e);
   return 0;
+}
+
+int LuaSystem_lFunc_GetEntities(lua_State* l)
+{
+  struct Entity* e = luaSystem_em->first_ent;
+  int i = 1;
+  lua_newtable(l);
+  while (e)
+  {
+    lua_pushinteger(l, i);
+    lua_pushlightuserdata(l, e);
+    lua_settable(l, -3);
+    i++;
+    e = e->next;
+  }
+  return 1;
 }
 
 int LuaSystem_lFunc_LoadTexture(lua_State* l)

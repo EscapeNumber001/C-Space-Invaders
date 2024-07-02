@@ -29,16 +29,24 @@
 
 #include <lua.h>
 #include <lauxlib.h>
+#include <lualib.h>
 #include "globals.h"
 #include "texture_manager.h"
 #include "entity.h"
 
 void LuaSystem_Init(SDL_Renderer* renderer, struct EntityManager* em, struct SpriteManager* sm, struct TextureManager* tm);
+
+// Args:
+// none
 int LuaSystem_lFunc_CreateEntity(lua_State* l);
 
 // Args:
 // Entity* (lightuserdata)
 int LuaSystem_lFunc_DestroyEntity(lua_State* l);
+
+// Args:
+// none
+int LuaSystem_lFunc_GetEntities(lua_State* l);
 
 // Args:
 // Entity* (lightuserdata)
