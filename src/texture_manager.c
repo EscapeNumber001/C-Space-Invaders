@@ -68,3 +68,41 @@ struct CachedTexture* TextureManager_GetTexture(struct TextureManager* tm, char*
   }
   return NULL;
 }
+
+void CachedTexture_Unload(struct TextureManager* tm, struct CachedTexture* texture)
+{
+  struct CachedTexture* prev = NULL;
+  struct CachedTexture* t = tm->first;
+  while (t)
+  {
+    if (t->next == texture)
+    {
+      prev = t;
+      break;
+    }
+    t = t->next;
+  }
+
+  if (texture == tm->first)
+  {
+    if (texture->next)
+    {
+      tm->first = texture->next;
+    }
+    else
+    {
+      tm->first = NULL;
+    }
+  }
+
+  if (tm->current == texture)
+    tm->current = prev ? prev : tm->first;
+
+  if (prev)
+    prev->next = texture->next;
+  else
+    tm->first = texture->next;
+
+  free(texture->texture);
+  free(texture);
+}

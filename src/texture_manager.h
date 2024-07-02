@@ -43,4 +43,5 @@ bool TextureManager_Load(SDL_Renderer* rend, struct TextureManager* tm, char* fi
 bool TextureManager_LoadEx(SDL_Renderer* rend, struct TextureManager* tm, char* filename,
 			    int textureLengthPx, int animationFps, bool loopAnimation);
 struct CachedTexture* TextureManager_GetTexture(struct TextureManager* tm, char* filename);
+void CachedTexture_Unload(struct TextureManager* tm, struct CachedTexture* texture);
 #endif

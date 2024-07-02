@@ -20,6 +20,7 @@
 #include "entity.h"
 #include "globals.h"
 #include "lua_scripting.h"
+#include "texture_manager.h"
 
 struct SDLGameContext
 {
