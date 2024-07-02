@@ -34,7 +34,7 @@
 #include "entity.h"
 
 void LuaSystem_Init(SDL_Renderer* renderer, struct EntityManager* em, struct SpriteManager* sm, struct TextureManager* tm);
-int LuaSystem_lFunc_SpawnEntity(lua_State* l);
+int LuaSystem_lFunc_CreateEntity(lua_State* l);
 
 // Args:
 // Entity* (lightuserdata)
@@ -52,7 +52,4 @@ int LuaSystem_lFunc_SetEntityTexture(lua_State* l);
 // Loop animation? (bool)
 int LuaSystem_lFunc_LoadTexture(lua_State* l);
 
-// Args:
-// Filename (string)
-int LuaSystem_lFunc_GetTexture(lua_State* l);
 #endif
