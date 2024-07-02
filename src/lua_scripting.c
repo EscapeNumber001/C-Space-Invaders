@@ -30,13 +30,14 @@ void LuaSystem_Init(SDL_Renderer* renderer, struct EntityManager* em, struct Spr
   lua_register(luaState, "DestroyEntity", LuaSystem_lFunc_DestroyEntity);
   lua_register(luaState, "LoadTexture", LuaSystem_lFunc_LoadTexture);
   lua_register(luaState, "SetEntityTexture", LuaSystem_lFunc_SetEntityTexture);
+  lua_register(luaState, "MoveEntity", LuaSystem_lFunc_MoveEntity);
 
   luaSystem_renderer = renderer;
   luaSystem_em = em;
   luaSystem_sm = sm;
   luaSystem_tm = tm;
   // DEBUG Runs a preset Lua test script
-  luaL_dostring(luaState, "x = CreateEntity(); LoadTexture('assets/animationtest.bmp', 64, 15, true); SetEntityTexture(x, 'assets/animationtest.bmp'); --DestroyEntity(x)");
+  luaL_dofile(luaState, "scripts/debug.lua");
 }
 
 int LuaSystem_lFunc_CreateEntity(lua_State* l)
@@ -89,5 +90,14 @@ int LuaSystem_lFunc_SetEntityTexture(lua_State* l)
   }
   
   foo->sprite->texture = t;
+  return 0;
+}
+
+int LuaSystem_lFunc_MoveEntity(lua_State* l)
+{
+  struct Entity* ent = (struct Entity*)lua_topointer(l, 1);
+  int x = lua_tointeger(l, 2);
+  int y = lua_tointeger(l, 3);
+  ent->position = (SDL_Point){x, y};
   return 0;
 }

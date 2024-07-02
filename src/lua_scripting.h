@@ -46,6 +46,12 @@ int LuaSystem_lFunc_DestroyEntity(lua_State* l);
 int LuaSystem_lFunc_SetEntityTexture(lua_State* l);
 
 // Args:
+// Entity* (lightuserdata)
+// New X pos (integer)
+// New Y pos (integer)
+int LuaSystem_lFunc_MoveEntity(lua_State* l);
+
+// Args:
 // Filename (string)
 // Texture length (integer)
 // Animation FPS (integer)
