@@ -37,15 +37,26 @@ bool TextureManager_LoadEx(SDL_Renderer* rend, struct TextureManager* tm, char* 
     printf("[TextureManager][ERROR] Filename %s too long!\n", filename);
     return false;
   }
+
   strcpy(filenameWithJsonExtension, filename);
   strcat(filenameWithJsonExtension, ".json");
   json_object* root = json_object_from_file(filenameWithJsonExtension);
   json_object* jsonTextureLengthPx = json_object_object_get(root, "textureLengthPx");
   json_object* jsonAnimationFps    = json_object_object_get(root, "animationFps");
   json_object* jsonLoopAnimation   = json_object_object_get(root, "loopAnimation");
+  json_object* jsonFrameSize       = json_object_object_get(root, "frameSizePx");
+      json_object* jsonFrameSizeX      = json_object_object_get(jsonFrameSize, "x");
+      json_object* jsonFrameSizeY      = json_object_object_get(jsonFrameSize, "y");
+  json_object_put(root);
+
   t->textureLengthPx   = json_object_get_int(jsonTextureLengthPx);
   t->animationFps      = json_object_get_int(jsonAnimationFps);
   t->loopAnimation     = json_object_get_boolean(jsonLoopAnimation);
+  t->textureFrameResolutionPx = (SDL_Point) {
+    json_object_get_int(jsonFrameSizeX),
+    json_object_get_int(jsonFrameSizeY)
+  };
+
   if (root == NULL)
   {
     printf("[TextureManager][ERROR] Failed to parse JSON file %s!\n", filenameWithJsonExtension);
