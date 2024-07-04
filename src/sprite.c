@@ -64,11 +64,11 @@ void SpriteManager_AnimateSprites(struct SpriteManager* sm, int gameFps)
 
 void Sprite_NextAnimation(struct Sprite* spr)
 {
-  if (spr->spritesheetCropRect.x + SPRITE_SPRITESHEET_PIXELS_PER_FRAME >= spr->texture->textureLengthPx)
+  if (spr->spritesheetCropRect.x + spr->texture->textureFrameResolutionPx.x >= spr->texture->textureLengthPx)
   {
     spr->spritesheetCropRect.x = spr->texture->loopAnimation ? 0 : spr->spritesheetCropRect.x;
     return;
   }
 
-  spr->spritesheetCropRect.x += SPRITE_SPRITESHEET_PIXELS_PER_FRAME;
+  spr->spritesheetCropRect.x += spr->texture->textureFrameResolutionPx.x;
 }
