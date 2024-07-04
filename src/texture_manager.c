@@ -31,8 +31,12 @@ bool TextureManager_LoadEx(SDL_Renderer* rend, struct TextureManager* tm, char* 
   t->filename = filename;
   SDL_Surface* tmp = SDL_LoadBMP(filename);
 
-  // WARN: This may be insecure
   char filenameWithJsonExtension[256];
+  if (strlen(filename) + strlen(".json") >= 256)
+  {
+    printf("[TextureManager][ERROR] Filename %s too long!\n", filename);
+    return false;
+  }
   strcpy(filenameWithJsonExtension, filename);
   strcat(filenameWithJsonExtension, ".json");
   json_object* root = json_object_from_file(filenameWithJsonExtension);
@@ -44,7 +48,8 @@ bool TextureManager_LoadEx(SDL_Renderer* rend, struct TextureManager* tm, char* 
   t->loopAnimation     = json_object_get_boolean(jsonLoopAnimation);
   if (root == NULL)
   {
-    printf("[TextureManager][ERROR] Failed to parse JSON file %s\n", filenameWithJsonExtension);
+    printf("[TextureManager][ERROR] Failed to parse JSON file %s!\n", filenameWithJsonExtension);
+    return false;
   }
 
   if (tmp == NULL)
