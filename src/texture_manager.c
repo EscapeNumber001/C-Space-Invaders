@@ -19,20 +19,34 @@
 
 bool TextureManager_Load(SDL_Renderer* rend, struct TextureManager* tm, char* filename)
 {
-  return TextureManager_LoadEx(rend, tm, filename, 0, 0, false);
+  return TextureManager_LoadEx(rend, tm, filename, 0, (SDL_Point){0},  0, false);
 }
 
 bool TextureManager_LoadEx(SDL_Renderer* rend, struct TextureManager* tm, char* filename,
-			    int textureLengthPx, int animationFps, bool loopAnimation)
+			    int textureLengthPx, SDL_Point textureFrameResolutionPx,
+			    int animationFps, bool loopAnimation)
 { 
   // TODO: The variable names in this block of code are potentially confusing and should be changed
   struct CachedTexture* t = malloc(sizeof(struct CachedTexture));
-  t->textureLengthPx = textureLengthPx;
-  t->animationFps = animationFps;
-  t->loopAnimation = loopAnimation;
   t->filename = filename;
-
   SDL_Surface* tmp = SDL_LoadBMP(filename);
+
+  // WARN: This may be insecure
+  char filenameWithJsonExtension[256];
+  strcpy(filenameWithJsonExtension, filename);
+  strcat(filenameWithJsonExtension, ".json");
+  json_object* root = json_object_from_file(filenameWithJsonExtension);
+  json_object* jsonTextureLengthPx = json_object_object_get(root, "textureLengthPx");
+  json_object* jsonAnimationFps    = json_object_object_get(root, "animationFps");
+  json_object* jsonLoopAnimation   = json_object_object_get(root, "loopAnimation");
+  t->textureLengthPx   = json_object_get_int(jsonTextureLengthPx);
+  t->animationFps      = json_object_get_int(jsonAnimationFps);
+  t->loopAnimation     = json_object_get_boolean(jsonLoopAnimation);
+  if (root == NULL)
+  {
+    printf("[TextureManager][ERROR] Failed to parse JSON file %s\n", filenameWithJsonExtension);
+  }
+
   if (tmp == NULL)
   {
     printf("[TextureManager][ERROR] Encountered SDL Error while loading texture: %s", SDL_GetError());

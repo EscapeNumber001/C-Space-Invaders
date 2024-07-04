@@ -85,11 +85,13 @@ int LuaSystem_lFunc_GetEntities(lua_State* l)
 
 int LuaSystem_lFunc_LoadTexture(lua_State* l)
 {
-  char* filename = (char*)lua_tostring(l, 1);
-  int   imgLen   = lua_tointeger(l, 2);
-  int   animFps  = lua_tointeger(l, 3);
-  bool  loop     = lua_toboolean(l, 4);
-  TextureManager_LoadEx(luaSystem_renderer, luaSystem_tm, filename, imgLen, animFps, loop);
+  char* filename   = (char*)lua_tostring(l, 1);
+  int   imgLen     = lua_tointeger(l, 2);
+  int   animFps    = lua_tointeger(l, 3);
+  int   frameSizeX = lua_tointeger(l, 4);
+  int   frameSizeY = lua_tointeger(l, 5);
+  bool  loop       = lua_toboolean(l, 6);
+  TextureManager_LoadEx(luaSystem_renderer, luaSystem_tm, filename, imgLen, (SDL_Point){frameSizeX, frameSizeY}, animFps, loop);
   return 0;
 }
 
