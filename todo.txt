@@ -5,5 +5,5 @@
 [x] 2024-06-02 2024-06-02 Fix the linked list code in TextureManager so it mirrors that of EntityManager +LinkedList +Texture
 [x] 2024-06-02 2024-06-02 Add a function to unload CachedTextures from memory +Texture
 [x] 2024-06-04 2024-06-04 Implement a way to store texture metadata in a file rather than hardcoding it into the load function's arguments +Texture
-[ ] 2024-06-04 Implement a placeholder texture to prevent segmentation faults when attempting to get an unloaded texture +Texture
+[x] 2024-06-04 Implement a placeholder texture to prevent segmentation faults when attempting to get an unloaded texture +Texture
 
