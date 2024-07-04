@@ -40,6 +40,8 @@ struct TextureManager
   struct CachedTexture* current;
 };
 
+void TextureManager_Init(SDL_Renderer* rend, struct TextureManager* tm);
+
 // Returns false on error.
 bool TextureManager_Load(SDL_Renderer* rend, struct TextureManager* tm, char* filename);
 bool TextureManager_LoadEx(SDL_Renderer* rend, struct TextureManager* tm, char* filename,

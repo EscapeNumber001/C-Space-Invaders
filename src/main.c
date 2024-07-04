@@ -60,9 +60,10 @@ int main()
 
   EntityManager_Init(&em);
   SpriteManager_Init(&sm, sdlGameCtx.renderer);
+  TextureManager_Init(sdlGameCtx.renderer, &tm);
   //TextureManager_LoadEx(sdlGameCtx.renderer, &tm, "assets/animationtest.bmp", 64, 15, true);
-  TextureManager_LoadEx(sdlGameCtx.renderer, &tm, "assets/player.bmp", 16, (SDL_Point){16}, 30, true);
-  TextureManager_LoadEx(sdlGameCtx.renderer, &tm, "assets/bullet.bmp", 32, (SDL_Point){16}, 15, true);
+  TextureManager_Load(sdlGameCtx.renderer, &tm, "assets/player.bmp");
+  TextureManager_Load(sdlGameCtx.renderer, &tm, "assets/bullet.bmp");
 
   struct Sprite* sprite = SpriteManager_CreateSprite(&sm, TextureManager_GetTexture(&tm, "assets/player.bmp"));
   struct Sprite* bulletSpr = SpriteManager_CreateSprite(&sm, TextureManager_GetTexture(&tm, "assets/bullet.bmp"));

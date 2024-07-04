@@ -91,7 +91,7 @@ int LuaSystem_lFunc_LoadTexture(lua_State* l)
   int   frameSizeX = lua_tointeger(l, 4);
   int   frameSizeY = lua_tointeger(l, 5);
   bool  loop       = lua_toboolean(l, 6);
-  TextureManager_LoadEx(luaSystem_renderer, luaSystem_tm, filename, imgLen, (SDL_Point){frameSizeX, frameSizeY}, animFps, loop);
+  TextureManager_Load(luaSystem_renderer, luaSystem_tm, filename);
   return 0;
 }
 

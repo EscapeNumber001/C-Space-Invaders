@@ -17,15 +17,13 @@
  */
 #include "texture_manager.h"
 
-bool TextureManager_Load(SDL_Renderer* rend, struct TextureManager* tm, char* filename)
+void TextureManager_Init(SDL_Renderer* rend, struct TextureManager* tm)
 {
-  return TextureManager_LoadEx(rend, tm, filename, 0, (SDL_Point){0},  0, false);
+  TextureManager_Load(rend, tm, "assets/placeholder.bmp");
 }
 
-bool TextureManager_LoadEx(SDL_Renderer* rend, struct TextureManager* tm, char* filename,
-			    int textureLengthPx, SDL_Point textureFrameResolutionPx,
-			    int animationFps, bool loopAnimation)
-{ 
+bool TextureManager_Load(SDL_Renderer* rend, struct TextureManager* tm, char* filename)
+{
   // TODO: The variable names in this block of code are potentially confusing and should be changed
   struct CachedTexture* t = malloc(sizeof(struct CachedTexture));
   t->filename = filename;
@@ -66,14 +64,14 @@ bool TextureManager_LoadEx(SDL_Renderer* rend, struct TextureManager* tm, char* 
 
   if (tmp == NULL)
   {
-    printf("[TextureManager][ERROR] Encountered SDL Error while loading texture: %s", SDL_GetError());
+    printf("[TextureManager][ERROR] Encountered SDL Error while loading texture: %s\n", SDL_GetError());
     free(t);
     return false;
   }
   SDL_Texture* tmp2 = SDL_CreateTextureFromSurface(rend, tmp);
   if (tmp2 == NULL)
   {
-    printf("[TextureManager][ERROR] Encountered SDL Error while converting surface to texture: %s", SDL_GetError());
+    printf("[TextureManager][ERROR] Encountered SDL Error while converting surface to texture: %s\n", SDL_GetError());
     free(t);
     free(tmp);
     return false;
@@ -97,7 +95,18 @@ struct CachedTexture* TextureManager_GetTexture(struct TextureManager* tm, char*
     if (strcmp(t->filename, filename) == 0)
       return t;
   }
-  return NULL;
+
+  if (!(strcmp(filename, "assets/placeholder.bmp") == 0))  // Prevent infinite recursion if placeholder texture can't load
+  {
+    printf("[TextureManager][WARN] Failed to load texture %s; loading placeholder\n", filename);
+    return TextureManager_GetTexture(tm, "assets/placeholder.bmp");
+  }
+  else
+  {
+    printf("[TextureManager][FATAL ERROR] Failed to retrieve placeholder texture!\n");
+    SDL_Quit();
+    return 0;
+  }
 }
 
 void CachedTexture_Unload(struct TextureManager* tm, struct CachedTexture* texture)
