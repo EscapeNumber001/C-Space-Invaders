@@ -1,0 +1,9 @@
+{
+  "textureLengthPx": 32,
+  "animationFps": 30,
+  "loopAnimation": true,
+  "textureFrameResolutionPx": {
+    "x": 16,
+    "y": 16
+  }
+}
