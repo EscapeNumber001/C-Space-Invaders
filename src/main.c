@@ -130,7 +130,8 @@ int main()
 	SDL_Rect a, b;
 	a = Entity_CalculateAABBRect(ent);
 	b = Entity_CalculateAABBRect(checkCollisionEnt);
-	if (SDL_HasIntersection(&a, &b))
+	bool bothExist = !ent->_markedForRemoval && !checkCollisionEnt->_markedForRemoval;
+	if (SDL_HasIntersection(&a, &b) && bothExist)
 	{
 	  if (ent->onAabbIntersect != NULL)
 	    (ent->onAabbIntersect)(ent, checkCollisionEnt);

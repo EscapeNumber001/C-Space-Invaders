@@ -26,9 +26,6 @@ struct Entity* alienMoveCoordinator;
 
 void _onAlienHit(struct Entity* self, struct Entity* other)
 {
-  if (self->_markedForRemoval)
-    return;
-
   if (strcmp(other->sprite->texture->filename, "assets/bullet.bmp") == 0)
   {
     Entity_Destroy(demoSingletons.em, self);
