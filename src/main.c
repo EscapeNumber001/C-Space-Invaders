@@ -38,7 +38,7 @@ struct TextureManager tm;
 
 void BulletUpdate(struct Entity* ent, int frameDelta)
 {
-  ent->position.y -= 5;
+  ent->position.y -= 15;
 
   if (ent->position.y < 0)
   {

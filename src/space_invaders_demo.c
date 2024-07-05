@@ -21,13 +21,19 @@
 struct DemoSingletons demoSingletons;
 int alienMoveDirection;
 int msSinceLastMove = 0;
+int alienCount = DEMO_MAX_ALIENS;
 struct Entity* alienMoveCoordinator;
 
 void _onAlienHit(struct Entity* self, struct Entity* other)
 {
+  if (self->_markedForRemoval)
+    return;
+
   if (strcmp(other->sprite->texture->filename, "assets/bullet.bmp") == 0)
   {
     Entity_Destroy(demoSingletons.em, self);
+    Entity_Destroy(demoSingletons.em, other);
+    alienCount--;
   }
 }
 
@@ -73,6 +79,11 @@ _continue:
   return closestEnt;
 }
 
+// Function to linearly interpolate between two values
+int lerp(int a, int b, float t) {
+    return (int)((1.0f - t) * a + t * b);
+}
+
 void moveAllAliensDown()
 {
   struct Entity* e = demoSingletons.em->first_ent;
@@ -88,10 +99,25 @@ _continue:
   }
 }
 
+int calculateMoveDelayMs()
+{
+  // Calculate the percentage of aliens remaining
+  float percentageRemaining = (float)alienCount / (float)DEMO_MAX_ALIENS;
+    
+  // Invert the percentage because we want the delay to decrease as aliens decrease
+  float t = 1.0f - percentageRemaining;
+    
+  // Lerp between the slowest and fastest delay
+  return lerp(DEMO_SLOWEST_ALIEN_MOVE_DELAY_MS, DEMO_FASTEST_ALIEN_MOVE_DELAY_MS, t);
+}
+
 void coordinateAlienMove(struct Entity* self, int frameDelta)
 {
-  printf("%d\n", frameDelta);
-  if (msSinceLastMove < DEMO_ALIEN_MOVE_DELAY_MS)
+  if (alienCount <= 0)
+    return;
+
+  printf("%d\n", calculateMoveDelayMs());
+  if (msSinceLastMove < calculateMoveDelayMs())
   {
     msSinceLastMove += frameDelta;
     return;
