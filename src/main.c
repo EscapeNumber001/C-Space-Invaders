@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "lua_scripting.h"
 #include "texture_manager.h"
+#include "space_invaders_demo.h"
 
 struct SDLGameContext
 {
@@ -35,7 +36,7 @@ struct SpriteManager sm;
 struct EntityManager em;
 struct TextureManager tm;
 
-void BulletUpdate(struct Entity* ent)
+void BulletUpdate(struct Entity* ent, int frameDelta)
 {
   ent->position.y -= 5;
 
@@ -61,7 +62,7 @@ int main()
   EntityManager_Init(&em);
   SpriteManager_Init(&sm, sdlGameCtx.renderer);
   TextureManager_Init(sdlGameCtx.renderer, &tm);
-  //TextureManager_LoadEx(sdlGameCtx.renderer, &tm, "assets/animationtest.bmp", 64, 15, true);
+  TextureManager_Load(sdlGameCtx.renderer, &tm, "assets/animationtest.bmp");
   TextureManager_Load(sdlGameCtx.renderer, &tm, "assets/player.bmp");
   TextureManager_Load(sdlGameCtx.renderer, &tm, "assets/bullet.bmp");
 
@@ -69,12 +70,15 @@ int main()
   struct Sprite* bulletSpr = SpriteManager_CreateSprite(&sm, TextureManager_GetTexture(&tm, "assets/bullet.bmp"));
 
   struct Entity* p = EntityManager_CreateEntity(&em);
+  p->position.y = 400;
   p->aabbSize = (SDL_Point){100, 100};
-  LuaSystem_Init(sdlGameCtx.renderer, &em, &sm, &tm);
+  //LuaSystem_Init(sdlGameCtx.renderer, &em, &sm, &tm);
 
   p->sprite = sprite;
   p->onAabbIntersect = DebugOnIntersect;
   
+  Demo_Init(&em, &tm, &sm);
+  Demo_StartGame();
   while (!SDL_QuitRequested())
   {
     if (SDL_GetTicks() - sdlGameCtx.lastFrameTicks < 1000 / FPS > 0)
@@ -82,7 +86,6 @@ int main()
       continue;
     }
 
-    sdlGameCtx.lastFrameTicks = SDL_GetTicks();
 
     SDL_PumpEvents(); 
     const Uint8* keyState = SDL_GetKeyboardState(NULL);
@@ -111,7 +114,7 @@ int main()
     {
       // Update entities
       if (ent->onUpdate != NULL)
-	(ent->onUpdate)(ent);
+	(ent->onUpdate)(ent, SDL_GetTicks() - sdlGameCtx.lastFrameTicks);
 
       
       // Check collisions
@@ -137,9 +140,11 @@ int main()
 
 
       // Rendering
-      SDL_Rect screenRenderPos = (SDL_Rect){ent->position.x, ent->position.y, 100, 100};
       if (ent->sprite != NULL)
+      {
+	SDL_Rect screenRenderPos = (SDL_Rect){ent->position.x, ent->position.y, ent->sprite->spriteScalePx.x, ent->sprite->spriteScalePx.y};
 	SDL_RenderCopy(sdlGameCtx.renderer, ent->sprite->texture->texture, &ent->sprite->spritesheetCropRect, &screenRenderPos);
+      }
 
       
       // Clean up entities which are marked for removal
@@ -153,6 +158,7 @@ int main()
     }
 
     SDL_RenderPresent(sdlGameCtx.renderer);
+    sdlGameCtx.lastFrameTicks = SDL_GetTicks();
   }
   return 0;
 }

@@ -33,10 +33,11 @@ struct Entity
   SDL_Point		aabbSize;
   struct Sprite* 	sprite;
   bool			_markedForRemoval;  // READ-ONLY value
+  void* 		customData;
 
   struct EntityManager* entManager;
 
-  void (*onUpdate)(struct Entity* me);
+  void (*onUpdate)(struct Entity* me, int frameDelta);
   void (*onAabbIntersect)(struct Entity* me, struct Entity* intersectingEntity);
 
   struct Entity* next;

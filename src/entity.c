@@ -7,6 +7,7 @@ void Entity_Init(struct Entity* ent, int id)
   ent->aabbSize 	= (SDL_Point){0, 0};
   ent->sprite		= NULL;
   ent->_markedForRemoval = false;
+  ent->customData	= NULL;
   
   ent->onUpdate		= NULL;
   ent->onAabbIntersect 	= NULL;

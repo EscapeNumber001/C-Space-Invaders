@@ -20,6 +20,7 @@ struct Sprite* SpriteManager_CreateSprite(struct SpriteManager* sm, struct Cache
   sm->currentSpr = newSpr;
 
   newSpr->texture = texture;
+  newSpr->spriteScalePx = (SDL_Point){100, 100};
   newSpr->spritesheetCropRect = (SDL_Rect){0, 0, SPRITE_SPRITESHEET_PIXELS_PER_FRAME, SPRITE_SPRITESHEET_PIXELS_PER_FRAME};
   newSpr->_framesElapsed = 0;
   return newSpr;
