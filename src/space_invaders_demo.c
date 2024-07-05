@@ -76,7 +76,6 @@ _continue:
   return closestEnt;
 }
 
-// Function to linearly interpolate between two values
 int lerp(int a, int b, float t) {
     return (int)((1.0f - t) * a + t * b);
 }
@@ -124,7 +123,7 @@ void coordinateAlienMove(struct Entity* self, int frameDelta)
   struct Entity* closest = getAlienClosestToEdge();
   if (alienMoveDirection == DEMO_MOVE_DIR_RIGHT)
   {
-    if (closest->position.x + DEMO_ALIEN_SPRITE_SIZE.x >= WIDTH)  // We multiply by 2 here because SDL sprite coords start from the top-left corner. Otherwise the sprite would hang slightly offscreen before dropping.
+    if (closest->position.x + DEMO_ALIEN_SPRITE_SIZE.x >= WIDTH)
     {
       alienMoveDirection = -alienMoveDirection;
       moveAllAliensDown();
@@ -141,7 +140,7 @@ void coordinateAlienMove(struct Entity* self, int frameDelta)
     }
   }
 
-  // If we're not at the edge
+  // If we're not at the edge:
   struct Entity* e = demoSingletons.em->first_ent;
   while (e)
   {
@@ -172,7 +171,6 @@ void Demo_StartGame()
     {
       struct Entity* alien = EntityManager_CreateEntity(demoSingletons.em);
       struct Sprite* alienSpr = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, "assets/animationtest.bmp"));
-      
 
       alien->sprite = alienSpr;
       alien->position = (SDL_Point){x * 80, y * 80};

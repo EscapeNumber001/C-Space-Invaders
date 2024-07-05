@@ -42,15 +42,8 @@ void BulletUpdate(struct Entity* ent, int frameDelta)
 
   if (ent->position.y < 0)
   {
-    ent->_markedForRemoval = true;
-    //EntityManager_RemoveEntity(&em, ent);
-    //free(ent);
+    Entity_Destroy(&em, ent);
   }
-}
-
-void DebugOnIntersect(struct Entity* me, struct Entity* other)
-{
-  //printf("I've been hit! (%d, %d)\n", me->id, other->id);
 }
 
 int main()
@@ -72,13 +65,11 @@ int main()
   struct Entity* p = EntityManager_CreateEntity(&em);
   p->position.y = 400;
   p->aabbSize = (SDL_Point){100, 100};
-  //LuaSystem_Init(sdlGameCtx.renderer, &em, &sm, &tm);
 
   p->sprite = sprite;
-  p->onAabbIntersect = DebugOnIntersect;
-  
   Demo_Init(&em, &tm, &sm);
   Demo_StartGame();
+
   while (!SDL_QuitRequested())
   {
     if (SDL_GetTicks() - sdlGameCtx.lastFrameTicks < 1000 / FPS > 0)
