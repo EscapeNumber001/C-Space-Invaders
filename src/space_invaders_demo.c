@@ -153,18 +153,56 @@ _continue:
   }
 }
 
-void Demo_Init(struct EntityManager* em, struct TextureManager* tm, struct SpriteManager* sm)
+void Demo_PlayerUpdate(struct Entity* self, int frameDelta)
+{
+  
+  SDL_PumpEvents(); 
+  const Uint8* keyState = SDL_GetKeyboardState(NULL);
+  if (keyState[SDL_SCANCODE_W])
+    self->position.y -= 1;
+  if (keyState[SDL_SCANCODE_S])
+    self->position.y += 1;
+  if (keyState[SDL_SCANCODE_A])
+    self->position.x -= 1;
+  if (keyState[SDL_SCANCODE_D])
+    self->position.x += 1;
+  /*if (keyState[SDL_SCANCODE_SPACE] && SDL_GetTicks() > cantShootUntilTick)
+  {
+      struct Entity* bullet = EntityManager_CreateEntity(&em);
+      bullet->aabbSize = (SDL_Point){25, 100};
+      bullet->position = (SDL_Point){self->position.x + 40, self->position.y - 75};
+      //bullet->sprite = bulletSpr;
+      //bullet->onUpdate = BulletUpdate;
+      bullet->sprite->spriteScalePx.x = 25;
+      cantShootUntilTick = SDL_GetTicks() + PLAYER_SHOOT_DELAY_MS;
+  }*/
+}
+
+void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureManager* tm, struct SpriteManager* sm)
 {
   demoSingletons.em = em;
   demoSingletons.tm = tm;
   demoSingletons.sm = sm;
   alienMoveDirection = DEMO_MOVE_DIR_RIGHT;
+
+  TextureManager_Load(renderer, tm, "assets/animationtest.bmp");
+  TextureManager_Load(renderer, tm, "assets/player.bmp");
+  TextureManager_Load(renderer, tm, "assets/bullet.bmp");
 }
 
 void Demo_StartGame()
 {
   alienMoveCoordinator = EntityManager_CreateEntity(demoSingletons.em);
   alienMoveCoordinator->onUpdate = coordinateAlienMove;
+
+  struct Entity* player = EntityManager_CreateEntity(demoSingletons.em);
+  struct Sprite* playerSpr = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, "assets/player.bmp"));
+
+  player->sprite = playerSpr;
+  player->position = (SDL_Point){0, HEIGHT - 100};
+  player->aabbSize = (SDL_Point){100, 100};
+  player->onUpdate = Demo_PlayerUpdate;
+
   for (int y = 0; y < DEMO_NUM_ALIEN_ROWS; y++)
   {
     for (int x = 0; x < DEMO_NUM_ALIEN_COLS; x++)
@@ -177,6 +215,7 @@ void Demo_StartGame()
       alien->aabbSize = DEMO_ALIEN_SPRITE_SIZE;
       alien->sprite->spriteScalePx = DEMO_ALIEN_SPRITE_SIZE;
       alien->onAabbIntersect = _onAlienHit;
+
       
       alien->customData = (struct AlienCustomData*)malloc(sizeof(struct AlienCustomData));
       ((struct AlienCustomData*)(alien->customData))->timeSinceLastMove = 0;

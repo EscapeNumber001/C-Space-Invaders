@@ -19,9 +19,10 @@
 #include <SDL2/SDL.h>
 #include "entity.h"
 #include "globals.h"
-#include "lua_scripting.h"
 #include "texture_manager.h"
 #include "space_invaders_demo.h"
+
+#define PLAYER_SHOOT_DELAY_MS 750;
 
 struct SDLGameContext
 {
@@ -35,6 +36,8 @@ struct SDLGameContext sdlGameCtx;
 struct SpriteManager sm;
 struct EntityManager em;
 struct TextureManager tm;
+
+int cantShootUntilTick = 0;
 
 void BulletUpdate(struct Entity* ent, int frameDelta)
 {
@@ -55,19 +58,8 @@ int main()
   EntityManager_Init(&em);
   SpriteManager_Init(&sm, sdlGameCtx.renderer);
   TextureManager_Init(sdlGameCtx.renderer, &tm);
-  TextureManager_Load(sdlGameCtx.renderer, &tm, "assets/animationtest.bmp");
-  TextureManager_Load(sdlGameCtx.renderer, &tm, "assets/player.bmp");
-  TextureManager_Load(sdlGameCtx.renderer, &tm, "assets/bullet.bmp");
 
-  struct Sprite* sprite = SpriteManager_CreateSprite(&sm, TextureManager_GetTexture(&tm, "assets/player.bmp"));
-  struct Sprite* bulletSpr = SpriteManager_CreateSprite(&sm, TextureManager_GetTexture(&tm, "assets/bullet.bmp"));
-
-  struct Entity* p = EntityManager_CreateEntity(&em);
-  p->position.y = 400;
-  p->aabbSize = (SDL_Point){100, 100};
-
-  p->sprite = sprite;
-  Demo_Init(&em, &tm, &sm);
+  Demo_Init(sdlGameCtx.renderer, &em, &tm, &sm);
   Demo_StartGame();
 
   while (!SDL_QuitRequested())
@@ -75,26 +67,6 @@ int main()
     if (SDL_GetTicks() - sdlGameCtx.lastFrameTicks < 1000 / FPS > 0)
     {
       continue;
-    }
-
-
-    SDL_PumpEvents(); 
-    const Uint8* keyState = SDL_GetKeyboardState(NULL);
-    if (keyState[SDL_SCANCODE_W])
-      p->position.y -= 1;
-    if (keyState[SDL_SCANCODE_S])
-      p->position.y += 1;
-    if (keyState[SDL_SCANCODE_A])
-      p->position.x -= 1;
-    if (keyState[SDL_SCANCODE_D])
-      p->position.x += 1;
-    if (keyState[SDL_SCANCODE_SPACE])
-    {
-      struct Entity* bullet = EntityManager_CreateEntity(&em);
-      bullet->aabbSize = (SDL_Point){100, 100};
-      bullet->position = p->position;
-      bullet->sprite = bulletSpr;
-      bullet->onUpdate = BulletUpdate;
     }
 
     SpriteManager_AnimateSprites(&sm, FPS);

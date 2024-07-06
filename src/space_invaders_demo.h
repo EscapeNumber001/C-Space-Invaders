@@ -46,7 +46,7 @@ struct AlienCustomData
   int timeSinceLastMove;
 };
 
-void Demo_Init(struct EntityManager* em, struct TextureManager* tm, struct SpriteManager* sm);
+void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureManager* tm, struct SpriteManager* sm);
 void Demo_StartGame();
 
 #endif
