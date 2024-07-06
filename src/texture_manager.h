@@ -23,6 +23,8 @@
 #include <json-c/json.h>
 #include <stdbool.h>
 
+#define TEXTURE_SPRITESHEET_COLOR_KEY		(SDL_Color){255, 0, 255, 255} // Magenta
+
 struct CachedTexture
 {
   SDL_Texture* 		texture;

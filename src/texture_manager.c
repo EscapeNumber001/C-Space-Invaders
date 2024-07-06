@@ -68,6 +68,7 @@ bool TextureManager_Load(SDL_Renderer* rend, struct TextureManager* tm, char* fi
     free(t);
     return false;
   }
+  SDL_SetColorKey(tmp, true, SDL_MapRGB(tmp->format, TEXTURE_SPRITESHEET_COLOR_KEY.r, TEXTURE_SPRITESHEET_COLOR_KEY.g, TEXTURE_SPRITESHEET_COLOR_KEY.b));
   SDL_Texture* tmp2 = SDL_CreateTextureFromSurface(rend, tmp);
   if (tmp2 == NULL)
   {
