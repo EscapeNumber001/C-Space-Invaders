@@ -41,9 +41,10 @@ struct DemoSingletons
   struct SpriteManager* sm;
 };
 
-struct AlienCustomData
+struct PlayerCustomData
 {
-  int timeSinceLastMove;
+  int cantShootUntilTick;
+  int shootCooldownMs;
 };
 
 void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureManager* tm, struct SpriteManager* sm);

@@ -23,6 +23,7 @@ int alienMoveDirection;
 int msSinceLastMove = 0;
 int alienCount = DEMO_MAX_ALIENS;
 struct Entity* alienMoveCoordinator;
+struct Sprite* bulletSprite;
 
 void _onAlienHit(struct Entity* self, struct Entity* other)
 {
@@ -153,9 +154,18 @@ _continue:
   }
 }
 
+void Demo_BulletUpdate(struct Entity* self, int frameDelta)
+{
+  self->position.y -= 15;
+
+  if (self->position.y < 0)
+    Entity_Destroy(demoSingletons.em, self);
+}
+
 void Demo_PlayerUpdate(struct Entity* self, int frameDelta)
 {
-  
+  int* cantShootUntilTick = &((struct PlayerCustomData*)self->customData)->cantShootUntilTick;
+  int shootCooldownMs = ((struct PlayerCustomData*)self->customData)->shootCooldownMs;
   SDL_PumpEvents(); 
   const Uint8* keyState = SDL_GetKeyboardState(NULL);
   if (keyState[SDL_SCANCODE_W])
@@ -166,16 +176,16 @@ void Demo_PlayerUpdate(struct Entity* self, int frameDelta)
     self->position.x -= 1;
   if (keyState[SDL_SCANCODE_D])
     self->position.x += 1;
-  /*if (keyState[SDL_SCANCODE_SPACE] && SDL_GetTicks() > cantShootUntilTick)
+  if (keyState[SDL_SCANCODE_SPACE] && SDL_GetTicks() > *cantShootUntilTick)
   {
-      struct Entity* bullet = EntityManager_CreateEntity(&em);
+      struct Entity* bullet = EntityManager_CreateEntity(demoSingletons.em);
       bullet->aabbSize = (SDL_Point){25, 100};
       bullet->position = (SDL_Point){self->position.x + 40, self->position.y - 75};
-      //bullet->sprite = bulletSpr;
-      //bullet->onUpdate = BulletUpdate;
+      bullet->sprite = bulletSprite;
+      bullet->onUpdate = Demo_BulletUpdate;
       bullet->sprite->spriteScalePx.x = 25;
-      cantShootUntilTick = SDL_GetTicks() + PLAYER_SHOOT_DELAY_MS;
-  }*/
+      *cantShootUntilTick = SDL_GetTicks() + shootCooldownMs;
+  }
 }
 
 void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureManager* tm, struct SpriteManager* sm)
@@ -183,11 +193,13 @@ void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureM
   demoSingletons.em = em;
   demoSingletons.tm = tm;
   demoSingletons.sm = sm;
-  alienMoveDirection = DEMO_MOVE_DIR_RIGHT;
 
   TextureManager_Load(renderer, tm, "assets/animationtest.bmp");
   TextureManager_Load(renderer, tm, "assets/player.bmp");
   TextureManager_Load(renderer, tm, "assets/bullet.bmp");
+
+  alienMoveDirection = DEMO_MOVE_DIR_RIGHT;
+  bulletSprite = SpriteManager_CreateSprite(sm, TextureManager_GetTexture(tm, "assets/bullet.bmp"));
 }
 
 void Demo_StartGame()
@@ -202,6 +214,9 @@ void Demo_StartGame()
   player->position = (SDL_Point){0, HEIGHT - 100};
   player->aabbSize = (SDL_Point){100, 100};
   player->onUpdate = Demo_PlayerUpdate;
+  player->customData = (struct PlayerCustomData*)malloc(sizeof(struct PlayerCustomData));
+  ((struct PlayerCustomData*)player->customData)->cantShootUntilTick = 0;
+  ((struct PlayerCustomData*)player->customData)->shootCooldownMs = 500;
 
   for (int y = 0; y < DEMO_NUM_ALIEN_ROWS; y++)
   {
@@ -215,10 +230,6 @@ void Demo_StartGame()
       alien->aabbSize = DEMO_ALIEN_SPRITE_SIZE;
       alien->sprite->spriteScalePx = DEMO_ALIEN_SPRITE_SIZE;
       alien->onAabbIntersect = _onAlienHit;
-
-      
-      alien->customData = (struct AlienCustomData*)malloc(sizeof(struct AlienCustomData));
-      ((struct AlienCustomData*)(alien->customData))->timeSinceLastMove = 0;
     }
   }
 }
