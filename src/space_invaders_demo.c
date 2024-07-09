@@ -25,10 +25,13 @@ int alienCount = DEMO_MAX_ALIENS;
 struct Entity* alienMoveCoordinator;
 struct Sprite* bulletSprite;
 
+int score = 0;
+
 void _onAlienHit(struct Entity* self, struct Entity* other)
 {
   if (strcmp(other->sprite->texture->filename, "assets/bullet.bmp") == 0)
   {
+    score += DEMO_SCORE_PER_ALIEN;
     Entity_Destroy(demoSingletons.em, self);
     Entity_Destroy(demoSingletons.em, other);
     alienCount--;
@@ -113,7 +116,6 @@ void coordinateAlienMove(struct Entity* self, int frameDelta)
   if (alienCount <= 0)
     return;
 
-  printf("%d\n", calculateMoveDelayMs());
   if (msSinceLastMove < calculateMoveDelayMs())
   {
     msSinceLastMove += frameDelta;
@@ -200,7 +202,7 @@ void Demo_DisplayText(char* text, SDL_Point textPosition)
     ent->sprite = letterSpr;
     ent->sprite->animationPaused = true;
     ent->sprite->spriteScalePx = (SDL_Point){DEMO_TEXT_SIZE_PX, DEMO_TEXT_SIZE_PX};
-    Sprite_SetAnimationFrame(ent->sprite, *c - '0');
+    Sprite_SetAnimationFrame(ent->sprite, *c - '0');  // Convert ASCII digit to a raw integer
     i++;
     c++;
   }
@@ -236,7 +238,6 @@ void Demo_StartGame()
   player->customData = (struct PlayerCustomData*)malloc(sizeof(struct PlayerCustomData));
   ((struct PlayerCustomData*)player->customData)->cantShootUntilTick = 0;
   ((struct PlayerCustomData*)player->customData)->shootCooldownMs = 500;
-  Demo_DisplayText("1234567890", (SDL_Point){0, 0});
 
   for (int y = 0; y < DEMO_NUM_ALIEN_ROWS; y++)
   {

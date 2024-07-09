@@ -36,6 +36,8 @@
 
 #define DEMO_TEXT_SIZE_PX 	48
 
+#define DEMO_SCORE_PER_ALIEN	100
+
 struct DemoSingletons
 {
   struct EntityManager* em;
