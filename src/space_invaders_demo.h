@@ -34,6 +34,8 @@
 #define DEMO_MOVE_DIR_RIGHT 1
 #define DEMO_MOVE_DIR_LEFT  -1
 
+#define DEMO_TEXT_SIZE_PX 	48
+
 struct DemoSingletons
 {
   struct EntityManager* em;

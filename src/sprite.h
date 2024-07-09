@@ -32,6 +32,7 @@ struct Sprite
   struct CachedTexture* 	texture;  // TODO: Maybe rename this to "spritesheet" or something to that effect?
   SDL_Rect			spritesheetCropRect;  // What portion of the spritesheet is rendered to the screen.
   SDL_Point			spriteScalePx;
+  bool				animationPaused;
   struct Sprite* 		next;
 
   int 				_framesElapsed;  // (since last animation frame)
@@ -50,5 +51,7 @@ void SpriteManager_RemoveSprite(struct SpriteManager* sm, struct Sprite* sprite)
 void SpriteManager_AnimateSprites(struct SpriteManager* sm, int gameFps);
 
 void Sprite_NextAnimation(struct Sprite* spr);
+int Sprite_GetAnimationFrame(struct Sprite* spr);
+void Sprite_SetAnimationFrame(struct Sprite* spr, int frame);
 
 #endif

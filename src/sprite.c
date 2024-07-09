@@ -23,6 +23,7 @@ struct Sprite* SpriteManager_CreateSprite(struct SpriteManager* sm, struct Cache
   newSpr->spriteScalePx = (SDL_Point){100, 100};
   newSpr->spritesheetCropRect = (SDL_Rect){0, 0, SPRITE_SPRITESHEET_PIXELS_PER_FRAME, SPRITE_SPRITESHEET_PIXELS_PER_FRAME};
   newSpr->_framesElapsed = 0;
+  newSpr->animationPaused = false;
   return newSpr;
 }
 
@@ -55,7 +56,8 @@ void SpriteManager_AnimateSprites(struct SpriteManager* sm, int gameFps)
   {
     if (spr->_framesElapsed >= gameFps - spr->texture->animationFps)
     {
-      Sprite_NextAnimation(spr);
+      if (!spr->animationPaused)
+	Sprite_NextAnimation(spr);
       spr->_framesElapsed = 0;
     }
     spr->_framesElapsed++;
@@ -72,4 +74,14 @@ void Sprite_NextAnimation(struct Sprite* spr)
   }
 
   spr->spritesheetCropRect.x += spr->texture->textureFrameResolutionPx.x;
+}
+
+int Sprite_GetAnimationFrame(struct Sprite* spr)
+{
+  return spr->spritesheetCropRect.x / spr->texture->textureFrameResolutionPx.x;
+}
+
+void Sprite_SetAnimationFrame(struct Sprite* spr, int frame)
+{
+  spr->spritesheetCropRect.x = spr->texture->textureFrameResolutionPx.x * frame;
 }

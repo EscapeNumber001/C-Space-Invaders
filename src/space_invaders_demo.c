@@ -188,6 +188,24 @@ void Demo_PlayerUpdate(struct Entity* self, int frameDelta)
   }
 }
 
+void Demo_DisplayText(char* text, SDL_Point textPosition)
+{
+  char* c = text;
+  int i = 0;
+  while (*c != '\0')
+  {
+    struct Entity* ent = EntityManager_CreateEntity(demoSingletons.em);
+    struct Sprite* letterSpr = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, "assets/numbers.bmp"));
+    ent->position = (SDL_Point){textPosition.x + i * DEMO_TEXT_SIZE_PX, textPosition.y};
+    ent->sprite = letterSpr;
+    ent->sprite->animationPaused = true;
+    ent->sprite->spriteScalePx = (SDL_Point){DEMO_TEXT_SIZE_PX, DEMO_TEXT_SIZE_PX};
+    Sprite_SetAnimationFrame(ent->sprite, *c - '0');
+    i++;
+    c++;
+  }
+}
+
 void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureManager* tm, struct SpriteManager* sm)
 {
   demoSingletons.em = em;
@@ -197,6 +215,7 @@ void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureM
   TextureManager_Load(renderer, tm, "assets/animationtest.bmp");
   TextureManager_Load(renderer, tm, "assets/player.bmp");
   TextureManager_Load(renderer, tm, "assets/bullet.bmp");
+  TextureManager_Load(renderer, tm, "assets/numbers.bmp");
 
   alienMoveDirection = DEMO_MOVE_DIR_RIGHT;
   bulletSprite = SpriteManager_CreateSprite(sm, TextureManager_GetTexture(tm, "assets/bullet.bmp"));
@@ -217,6 +236,7 @@ void Demo_StartGame()
   player->customData = (struct PlayerCustomData*)malloc(sizeof(struct PlayerCustomData));
   ((struct PlayerCustomData*)player->customData)->cantShootUntilTick = 0;
   ((struct PlayerCustomData*)player->customData)->shootCooldownMs = 500;
+  Demo_DisplayText("1234567890", (SDL_Point){0, 0});
 
   for (int y = 0; y < DEMO_NUM_ALIEN_ROWS; y++)
   {
