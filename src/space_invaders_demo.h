@@ -34,13 +34,16 @@
 #define DEMO_MOVE_DIR_RIGHT 1
 #define DEMO_MOVE_DIR_LEFT  -1
 
+#define DEMO_TEAM_PLAYER	0
+#define DEMO_TEAM_ALIEN		1
+
 #define DEMO_TEXT_SIZE_PX 	48
 
 #define DEMO_SCORE_PER_ALIEN	100
 
 struct DemoSingletons
 {
-  struct EntityManager* em;
+struct EntityManager* em;
   struct TextureManager* tm;
   struct SpriteManager* sm;
 };
@@ -51,7 +54,26 @@ struct PlayerCustomData
   int shootCooldownMs;
 };
 
+struct BulletCustomData
+{
+  int team;
+  int velocity;
+};
+
 void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureManager* tm, struct SpriteManager* sm);
 void Demo_StartGame();
 
+void _demo_onAlienHit(struct Entity* self, struct Entity* other);
+void _demo_onPlayerHit(struct Entity* self, struct Entity* other);
+bool _demo_isAlien(struct Entity* ent);
+struct Entity* _demo_getAlienClosestToEdge();
+int _demo_lerp(int a, int b, float t);
+void _demo_moveAllAliensDown();
+int _demo_calculateAlienMoveDelayMs();
+void _demo_alienMoveCoordinatorUpdate(struct Entity* self, int frameDelta);
+void _demo_bulletUpdate(struct Entity* self, int frameDelta);
+void _demo_playerUpdate(struct Entity* self, int frameDelta);
+void _demo_alienUpdate(struct Entity* self, int frameDelta);
+void _demo_displayNumber(char* text, SDL_Point position);
+void _demo_playerDied();
 #endif

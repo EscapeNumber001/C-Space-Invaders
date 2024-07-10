@@ -27,10 +27,12 @@ struct Sprite* bulletSprite;
 
 int score = 0;
 
-void _onAlienHit(struct Entity* self, struct Entity* other)
+void _demo_onAlienHit(struct Entity* self, struct Entity* other)
 {
   if (strcmp(other->sprite->texture->filename, "assets/bullet.bmp") == 0)
   {
+    if (((struct BulletCustomData*)other->customData)->team == DEMO_TEAM_ALIEN)
+      return;
     score += DEMO_SCORE_PER_ALIEN;
     Entity_Destroy(demoSingletons.em, self);
     Entity_Destroy(demoSingletons.em, other);
@@ -38,8 +40,18 @@ void _onAlienHit(struct Entity* self, struct Entity* other)
   }
 }
 
+void _demo_onPlayerHit(struct Entity* self, struct Entity* other)
+{
+  if (strcmp(other->sprite->texture->filename, "assets/bullet.bmp") == 0)
+  {
+    if (((struct BulletCustomData*)other->customData)->team != DEMO_TEAM_PLAYER)
+    {
+      Entity_Destroy(demoSingletons.em, self);
+    }
+  }
+}
 
-bool isAlien(struct Entity* ent)
+bool _demo_isAlien(struct Entity* ent)
 {
   if (ent->sprite == NULL)
     return false;
@@ -47,7 +59,7 @@ bool isAlien(struct Entity* ent)
   return (strcmp(ent->sprite->texture->filename, "assets/animationtest.bmp") == 0);
 }
 
-struct Entity* getAlienClosestToEdge()
+struct Entity* _demo_getAlienClosestToEdge()
 {
   int absoluteClosest = 0xC0FFEE;
   struct Entity* closestEnt = NULL;
@@ -55,7 +67,7 @@ struct Entity* getAlienClosestToEdge()
   struct Entity* e = demoSingletons.em->first_ent;
   while (e)
   {
-    if (!isAlien(e))
+    if (!_demo_isAlien(e))
       goto _continue;
 
     if (alienMoveDirection == DEMO_MOVE_DIR_RIGHT)
@@ -80,16 +92,16 @@ _continue:
   return closestEnt;
 }
 
-int lerp(int a, int b, float t) {
+int _demo_lerp(int a, int b, float t) {
     return (int)((1.0f - t) * a + t * b);
 }
 
-void moveAllAliensDown()
+void _demo_moveAllAliensDown()
 {
   struct Entity* e = demoSingletons.em->first_ent;
   while (e)
   {
-    if (!isAlien(e))
+    if (!_demo_isAlien(e))
       goto _continue;
 
     e->position.y += DEMO_ALIEN_SPRITE_SIZE.y;
@@ -99,7 +111,7 @@ _continue:
   }
 }
 
-int calculateMoveDelayMs()
+int _demo_calculateAlienMoveDelayMs()
 {
   // Calculate the percentage of aliens remaining
   float percentageRemaining = (float)alienCount / (float)DEMO_MAX_ALIENS;
@@ -108,28 +120,28 @@ int calculateMoveDelayMs()
   float t = 1.0f - percentageRemaining;
     
   // Lerp between the slowest and fastest delay
-  return lerp(DEMO_SLOWEST_ALIEN_MOVE_DELAY_MS, DEMO_FASTEST_ALIEN_MOVE_DELAY_MS, t);
+  return _demo_lerp(DEMO_SLOWEST_ALIEN_MOVE_DELAY_MS, DEMO_FASTEST_ALIEN_MOVE_DELAY_MS, t);
 }
 
-void coordinateAlienMove(struct Entity* self, int frameDelta)
+void _demo_alienMoveCoordinatorUpdate(struct Entity* self, int frameDelta)
 {
   if (alienCount <= 0)
     return;
 
-  if (msSinceLastMove < calculateMoveDelayMs())
+  if (msSinceLastMove < _demo_calculateAlienMoveDelayMs())
   {
     msSinceLastMove += frameDelta;
     return;
   }
   
   msSinceLastMove = 0;
-  struct Entity* closest = getAlienClosestToEdge();
+  struct Entity* closest = _demo_getAlienClosestToEdge();
   if (alienMoveDirection == DEMO_MOVE_DIR_RIGHT)
   {
     if (closest->position.x + DEMO_ALIEN_SPRITE_SIZE.x >= WIDTH)
     {
       alienMoveDirection = -alienMoveDirection;
-      moveAllAliensDown();
+      _demo_moveAllAliensDown();
       return;
     }
   }
@@ -138,7 +150,7 @@ void coordinateAlienMove(struct Entity* self, int frameDelta)
     if (closest->position.x - DEMO_ALIEN_SPRITE_SIZE.x < 0)
     {
       alienMoveDirection = -alienMoveDirection;
-      moveAllAliensDown();
+      _demo_moveAllAliensDown();
       return;
     }
   }
@@ -147,7 +159,7 @@ void coordinateAlienMove(struct Entity* self, int frameDelta)
   struct Entity* e = demoSingletons.em->first_ent;
   while (e)
   {
-    if (!isAlien(e))
+    if (!_demo_isAlien(e))
       goto _continue;
     e->position.x += alienMoveDirection * DEMO_ALIEN_SPRITE_SIZE.x;
 
@@ -156,15 +168,17 @@ _continue:
   }
 }
 
-void Demo_BulletUpdate(struct Entity* self, int frameDelta)
+void _demo_bulletUpdate(struct Entity* self, int frameDelta)
 {
-  self->position.y -= 15;
+  self->position.y += ((struct BulletCustomData*)self->customData)->velocity;
 
-  if (self->position.y < 0)
+  if (self->position.y < 0 || self->position.y > HEIGHT)
+  {
     Entity_Destroy(demoSingletons.em, self);
+  }
 }
 
-void Demo_PlayerUpdate(struct Entity* self, int frameDelta)
+void _demo_playerUpdate(struct Entity* self, int frameDelta)
 {
   int* cantShootUntilTick = &((struct PlayerCustomData*)self->customData)->cantShootUntilTick;
   int shootCooldownMs = ((struct PlayerCustomData*)self->customData)->shootCooldownMs;
@@ -184,13 +198,36 @@ void Demo_PlayerUpdate(struct Entity* self, int frameDelta)
       bullet->aabbSize = (SDL_Point){25, 100};
       bullet->position = (SDL_Point){self->position.x + 40, self->position.y - 75};
       bullet->sprite = bulletSprite;
-      bullet->onUpdate = Demo_BulletUpdate;
+      bullet->onUpdate = _demo_bulletUpdate;
       bullet->sprite->spriteScalePx.x = 25;
       *cantShootUntilTick = SDL_GetTicks() + shootCooldownMs;
+
+      struct BulletCustomData* cd = (struct BulletCustomData*)malloc(sizeof(struct BulletCustomData));
+      cd->team = DEMO_TEAM_PLAYER;
+      cd->velocity = -15;
+      bullet->customData = cd;
   }
 }
 
-void Demo_DisplayText(char* text, SDL_Point textPosition)
+void _demo_alienUpdate(struct Entity* self, int frameDelta)
+{ 
+  int chance = rand() % 250;
+  if (chance != 0)
+    return;
+  struct Entity* bullet = EntityManager_CreateEntity(demoSingletons.em);
+  bullet->aabbSize = (SDL_Point){25, 100};
+  bullet->position = (SDL_Point){self->position.x + 40, self->position.y - 75};
+  bullet->sprite = bulletSprite;
+  bullet->onUpdate = _demo_bulletUpdate;
+  bullet->sprite->spriteScalePx.x = 25;
+
+  struct BulletCustomData* cd = (struct BulletCustomData*)malloc(sizeof(struct BulletCustomData));
+  cd->team = DEMO_TEAM_ALIEN;
+  cd->velocity = 5;
+  bullet->customData = cd;
+}
+
+void _demo_DisplayText(char* text, SDL_Point textPosition)
 {
   char* c = text;
   int i = 0;
@@ -206,6 +243,14 @@ void Demo_DisplayText(char* text, SDL_Point textPosition)
     i++;
     c++;
   }
+}
+
+void _demo_PlayerDied()
+{
+  char scoreAsStr[16];
+  sprintf(scoreAsStr, "%d", score);
+  printf("%s\n", scoreAsStr);
+  _demo_displayNumber(scoreAsStr, (SDL_Point){0});
 }
 
 void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureManager* tm, struct SpriteManager* sm)
@@ -226,7 +271,7 @@ void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureM
 void Demo_StartGame()
 {
   alienMoveCoordinator = EntityManager_CreateEntity(demoSingletons.em);
-  alienMoveCoordinator->onUpdate = coordinateAlienMove;
+  alienMoveCoordinator->onUpdate = _demo_alienMoveCoordinatorUpdate;
 
   struct Entity* player = EntityManager_CreateEntity(demoSingletons.em);
   struct Sprite* playerSpr = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, "assets/player.bmp"));
@@ -234,7 +279,8 @@ void Demo_StartGame()
   player->sprite = playerSpr;
   player->position = (SDL_Point){0, HEIGHT - 100};
   player->aabbSize = (SDL_Point){100, 100};
-  player->onUpdate = Demo_PlayerUpdate;
+  player->onUpdate = _demo_playerUpdate;
+  player->onAabbIntersect = _demo_onPlayerHit;
   player->customData = (struct PlayerCustomData*)malloc(sizeof(struct PlayerCustomData));
   ((struct PlayerCustomData*)player->customData)->cantShootUntilTick = 0;
   ((struct PlayerCustomData*)player->customData)->shootCooldownMs = 500;
@@ -247,10 +293,11 @@ void Demo_StartGame()
       struct Sprite* alienSpr = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, "assets/animationtest.bmp"));
 
       alien->sprite = alienSpr;
+      alien->onUpdate = _demo_alienUpdate;
       alien->position = (SDL_Point){x * 80, y * 80};
       alien->aabbSize = DEMO_ALIEN_SPRITE_SIZE;
       alien->sprite->spriteScalePx = DEMO_ALIEN_SPRITE_SIZE;
-      alien->onAabbIntersect = _onAlienHit;
+      alien->onAabbIntersect = _demo_onAlienHit;
     }
   }
 }
