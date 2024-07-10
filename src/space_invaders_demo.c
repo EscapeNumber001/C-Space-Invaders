@@ -57,7 +57,7 @@ bool _demo_isAlien(struct Entity* ent)
   if (ent->sprite == NULL)
     return false;
 
-  return (strcmp(ent->sprite->texture->filename, "assets/animationtest.bmp") == 0);
+  return (strcmp(ent->sprite->texture->filename, "assets/enemy2.bmp") == 0);
 }
 
 struct Entity* _demo_getAlienClosestToEdge()
@@ -185,14 +185,10 @@ void _demo_playerUpdate(struct Entity* self, int frameDelta)
   int shootCooldownMs = ((struct PlayerCustomData*)self->customData)->shootCooldownMs;
   SDL_PumpEvents(); 
   const Uint8* keyState = SDL_GetKeyboardState(NULL);
-  if (keyState[SDL_SCANCODE_W])
-    self->position.y -= 1;
-  if (keyState[SDL_SCANCODE_S])
-    self->position.y += 1;
   if (keyState[SDL_SCANCODE_A])
-    self->position.x -= 1;
+    self->position.x -= DEMO_PLAYER_MOVE_SPEED;
   if (keyState[SDL_SCANCODE_D])
-    self->position.x += 1;
+    self->position.x += DEMO_PLAYER_MOVE_SPEED;
   if (keyState[SDL_SCANCODE_SPACE] && SDL_GetTicks() > *cantShootUntilTick)
   {
       struct Entity* bullet = EntityManager_CreateEntity(demoSingletons.em);
@@ -200,31 +196,31 @@ void _demo_playerUpdate(struct Entity* self, int frameDelta)
       bullet->position = (SDL_Point){self->position.x + 40, self->position.y - 75};
       bullet->sprite = bulletSprite;
       bullet->onUpdate = _demo_bulletUpdate;
-      bullet->sprite->spriteScalePx.x = 25;
       *cantShootUntilTick = SDL_GetTicks() + shootCooldownMs;
 
       struct BulletCustomData* cd = (struct BulletCustomData*)malloc(sizeof(struct BulletCustomData));
       cd->team = DEMO_TEAM_PLAYER;
-      cd->velocity = -15;
+      cd->velocity = -DEMO_PLAYER_BULLET_MOVE_SPEED;
       bullet->customData = cd;
   }
 }
 
 void _demo_alienUpdate(struct Entity* self, int frameDelta)
 { 
-  int chance = rand() % 250;
+  int chance = rand() % 500;
   if (chance != 0)
     return;
   struct Entity* bullet = EntityManager_CreateEntity(demoSingletons.em);
-  bullet->aabbSize = (SDL_Point){25, 100};
+  bullet->aabbSize = (SDL_Point){15, 50};
   bullet->position = (SDL_Point){self->position.x + 40, self->position.y - 75};
   bullet->sprite = bulletSprite;
   bullet->onUpdate = _demo_bulletUpdate;
-  bullet->sprite->spriteScalePx.x = 25;
+  bullet->sprite->spriteScalePx.x = 15;
+  bullet->sprite->spriteScalePx.y = 50;
 
   struct BulletCustomData* cd = (struct BulletCustomData*)malloc(sizeof(struct BulletCustomData));
   cd->team = DEMO_TEAM_ALIEN;
-  cd->velocity = 5;
+  cd->velocity = DEMO_ALIEN_BULLET_MOVE_SPEED;
   bullet->customData = cd;
 }
 
@@ -257,7 +253,6 @@ void _demo_playerDied()
 
   char scoreAsStr[16];
   sprintf(scoreAsStr, "%d", score);
-  printf("%s\n", scoreAsStr);
   _demo_displayNumber(scoreAsStr, (SDL_Point){WIDTH / 2 + 32, HEIGHT / 2 - 24});
 
   struct Entity* gameOverWindow = EntityManager_CreateEntity(demoSingletons.em);
@@ -279,9 +274,12 @@ void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureM
   TextureManager_Load(renderer, tm, "assets/bullet.bmp");
   TextureManager_Load(renderer, tm, "assets/numbers.bmp");
   TextureManager_Load(renderer, tm, "assets/gameoverwindow.bmp");
+  TextureManager_Load(renderer, tm, "assets/enemy2.bmp");
 
   alienMoveDirection = DEMO_MOVE_DIR_RIGHT;
   bulletSprite = SpriteManager_CreateSprite(sm, TextureManager_GetTexture(tm, "assets/bullet.bmp"));
+  bulletSprite->spriteScalePx.x = 15;
+  bulletSprite->spriteScalePx.y = 50;
 }
 
 void Demo_StartGame()
@@ -293,8 +291,9 @@ void Demo_StartGame()
   struct Sprite* playerSpr = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, "assets/player.bmp"));
 
   player->sprite = playerSpr;
+  player->sprite->spriteScalePx = (SDL_Point){DEMO_PLAYER_SIZE_PX, DEMO_PLAYER_SIZE_PX};
   player->position = (SDL_Point){0, HEIGHT - 100};
-  player->aabbSize = (SDL_Point){100, 100};
+  player->aabbSize = (SDL_Point){DEMO_PLAYER_SIZE_PX, DEMO_PLAYER_SIZE_PX};
   player->onUpdate = _demo_playerUpdate;
   player->onAabbIntersect = _demo_onPlayerHit;
   player->customData = (struct PlayerCustomData*)malloc(sizeof(struct PlayerCustomData));
@@ -306,7 +305,7 @@ void Demo_StartGame()
     for (int x = 0; x < DEMO_NUM_ALIEN_COLS; x++)
     {
       struct Entity* alien = EntityManager_CreateEntity(demoSingletons.em);
-      struct Sprite* alienSpr = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, "assets/animationtest.bmp"));
+      struct Sprite* alienSpr = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, "assets/enemy2.bmp"));
 
       alien->sprite = alienSpr;
       alien->onUpdate = _demo_alienUpdate;
