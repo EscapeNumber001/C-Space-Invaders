@@ -33,6 +33,7 @@ struct Sprite
   SDL_Rect			spritesheetCropRect;  // What portion of the spritesheet is rendered to the screen.
   SDL_Point			spriteScalePx;
   bool				animationPaused;
+  bool				isBackgroundSprite;  // The order in which this sprite will be rendered when overlapping with other sprites. Higher numbers render on top.
   struct Sprite* 		next;
 
   int 				_framesElapsed;  // (since last animation frame)

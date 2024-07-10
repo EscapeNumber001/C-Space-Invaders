@@ -73,6 +73,7 @@ int main()
     SDL_SetRenderDrawColor(sdlGameCtx.renderer, 255, 255, 255, 255);
     SDL_RenderClear(sdlGameCtx.renderer);
     struct Entity* ent = em.first_ent;
+    int i = 0;
     while (ent)
     {
       // Update entities
@@ -103,8 +104,8 @@ int main()
       }
 
 
-      // Rendering
-      if (ent->sprite != NULL)
+      // Rendering (first pass; background sprites)
+      if (ent->sprite != NULL && ent->sprite->isBackgroundSprite)
       {
 	SDL_Rect screenRenderPos = (SDL_Rect){ent->position.x, ent->position.y, ent->sprite->spriteScalePx.x, ent->sprite->spriteScalePx.y};
 	SDL_RenderCopy(sdlGameCtx.renderer, ent->sprite->texture->texture, &ent->sprite->spritesheetCropRect, &screenRenderPos);
@@ -121,6 +122,18 @@ int main()
 	entitymanager_internal_RemoveEntityFromLL(&em, oldEnt);
 	free(oldEnt);
       }
+    }
+
+    ent = em.first_ent;
+    while (ent != NULL)
+    {
+      // Rendering (second pass; foreground sprites)
+      if (ent->sprite != NULL && !ent->sprite->isBackgroundSprite)
+      {
+	SDL_Rect screenRenderPos = (SDL_Rect){ent->position.x, ent->position.y, ent->sprite->spriteScalePx.x, ent->sprite->spriteScalePx.y};
+	SDL_RenderCopy(sdlGameCtx.renderer, ent->sprite->texture->texture, &ent->sprite->spritesheetCropRect, &screenRenderPos);
+      }
+      ent = ent->next;
     }
 
     SDL_RenderPresent(sdlGameCtx.renderer);

@@ -47,6 +47,7 @@ void _demo_onPlayerHit(struct Entity* self, struct Entity* other)
     if (((struct BulletCustomData*)other->customData)->team != DEMO_TEAM_PLAYER)
     {
       Entity_Destroy(demoSingletons.em, self);
+      _demo_playerDied();
     }
   }
 }
@@ -227,7 +228,7 @@ void _demo_alienUpdate(struct Entity* self, int frameDelta)
   bullet->customData = cd;
 }
 
-void _demo_DisplayText(char* text, SDL_Point textPosition)
+void _demo_displayNumber(char* text, SDL_Point textPosition)
 {
   char* c = text;
   int i = 0;
@@ -245,12 +246,18 @@ void _demo_DisplayText(char* text, SDL_Point textPosition)
   }
 }
 
-void _demo_PlayerDied()
+void _demo_playerDied()
 {
   char scoreAsStr[16];
   sprintf(scoreAsStr, "%d", score);
   printf("%s\n", scoreAsStr);
-  _demo_displayNumber(scoreAsStr, (SDL_Point){0});
+  _demo_displayNumber(scoreAsStr, (SDL_Point){WIDTH / 2, HEIGHT / 2});
+
+  struct Entity* gameOverWindow = EntityManager_CreateEntity(demoSingletons.em);
+  struct Sprite* gowSpr = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, "assets/gameoverwindow.bmp"));
+  gameOverWindow->sprite = gowSpr;
+  gameOverWindow->position = (SDL_Point){0};
+  gameOverWindow->sprite->spriteScalePx = (SDL_Point){300, 150};
 }
 
 void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureManager* tm, struct SpriteManager* sm)
@@ -263,6 +270,7 @@ void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureM
   TextureManager_Load(renderer, tm, "assets/player.bmp");
   TextureManager_Load(renderer, tm, "assets/bullet.bmp");
   TextureManager_Load(renderer, tm, "assets/numbers.bmp");
+  TextureManager_Load(renderer, tm, "assets/gameoverwindow.bmp");
 
   alienMoveDirection = DEMO_MOVE_DIR_RIGHT;
   bulletSprite = SpriteManager_CreateSprite(sm, TextureManager_GetTexture(tm, "assets/bullet.bmp"));
