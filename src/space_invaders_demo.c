@@ -248,15 +248,23 @@ void _demo_displayNumber(char* text, SDL_Point textPosition)
 
 void _demo_playerDied()
 {
+  struct Entity* e = demoSingletons.em->first_ent;
+  while (e)
+  {
+    Entity_Destroy(demoSingletons.em, e);
+    e = e->next;
+  }
+
   char scoreAsStr[16];
   sprintf(scoreAsStr, "%d", score);
   printf("%s\n", scoreAsStr);
-  _demo_displayNumber(scoreAsStr, (SDL_Point){WIDTH / 2, HEIGHT / 2});
+  _demo_displayNumber(scoreAsStr, (SDL_Point){WIDTH / 2 + 32, HEIGHT / 2 - 24});
 
   struct Entity* gameOverWindow = EntityManager_CreateEntity(demoSingletons.em);
   struct Sprite* gowSpr = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, "assets/gameoverwindow.bmp"));
   gameOverWindow->sprite = gowSpr;
-  gameOverWindow->position = (SDL_Point){0};
+  gameOverWindow->sprite->isBackgroundSprite = true;
+  gameOverWindow->position = (SDL_Point){WIDTH / 4, HEIGHT / 4};
   gameOverWindow->sprite->spriteScalePx = (SDL_Point){300, 150};
 }
 

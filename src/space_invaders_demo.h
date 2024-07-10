@@ -37,9 +37,9 @@
 #define DEMO_TEAM_PLAYER	0
 #define DEMO_TEAM_ALIEN		1
 
-#define DEMO_TEXT_SIZE_PX 	48
+#define DEMO_TEXT_SIZE_PX 	32
 
-#define DEMO_SCORE_PER_ALIEN	100
+#define DEMO_SCORE_PER_ALIEN	5
 
 struct DemoSingletons
 {

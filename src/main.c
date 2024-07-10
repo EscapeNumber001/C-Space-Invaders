@@ -70,7 +70,7 @@ int main()
     }
 
     SpriteManager_AnimateSprites(&sm, FPS);
-    SDL_SetRenderDrawColor(sdlGameCtx.renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(sdlGameCtx.renderer, 35, 35, 35, 255);
     SDL_RenderClear(sdlGameCtx.renderer);
     struct Entity* ent = em.first_ent;
     int i = 0;
