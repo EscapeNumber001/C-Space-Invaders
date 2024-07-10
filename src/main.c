@@ -116,6 +116,8 @@ int main()
       ent = ent->next;
       if (oldEnt->_markedForRemoval)
       {
+	if (oldEnt->customData != NULL)
+	  free(oldEnt->customData);
 	entitymanager_internal_RemoveEntityFromLL(&em, oldEnt);
 	free(oldEnt);
       }
