@@ -27,6 +27,36 @@ struct Sprite* bulletSprite;
 
 int score = 0;
 
+void _demo_explodeEntity(struct Entity* self)
+{
+  struct Sprite* oldSprite = self->sprite;
+  self->sprite = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, "assets/explosion.bmp"));
+  self->sprite->spriteScalePx = oldSprite->spriteScalePx;
+  self->onUpdate = _demo_explosionUpdate;
+  self->onAabbIntersect = NULL;
+}
+
+void _demo_explosionUpdate(struct Entity* self, int frameDelta)
+{
+  if (Sprite_GetAnimationFrame(self->sprite) == 4)
+  {
+    Entity_Destroy(demoSingletons.em, self);
+  }
+}
+
+void _demo_checkwin()
+{
+  if (alienCount <= 0)
+  {
+    struct Entity* gameOverWindow = EntityManager_CreateEntity(demoSingletons.em);
+    struct Sprite* gowSpr = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, "assets/youwinwindow.bmp"));
+    gameOverWindow->sprite = gowSpr;
+    gameOverWindow->sprite->isBackgroundSprite = true;
+    gameOverWindow->position = (SDL_Point){WIDTH / 4, HEIGHT / 4};
+    gameOverWindow->sprite->spriteScalePx = (SDL_Point){300, 150};
+  }
+}
+
 void _demo_onAlienHit(struct Entity* self, struct Entity* other)
 {
   if (strcmp(other->sprite->texture->filename, "assets/bullet.bmp") == 0)
@@ -34,9 +64,10 @@ void _demo_onAlienHit(struct Entity* self, struct Entity* other)
     if (((struct BulletCustomData*)other->customData)->team == DEMO_TEAM_ALIEN)
       return;
     score += DEMO_SCORE_PER_ALIEN;
-    Entity_Destroy(demoSingletons.em, self);
+    _demo_explodeEntity(self);
     Entity_Destroy(demoSingletons.em, other);
     alienCount--;
+    _demo_checkwin();
   }
 }
 
@@ -46,9 +77,15 @@ void _demo_onPlayerHit(struct Entity* self, struct Entity* other)
   {
     if (((struct BulletCustomData*)other->customData)->team != DEMO_TEAM_PLAYER)
     {
-      Entity_Destroy(demoSingletons.em, self);
-      _demo_playerDied();
+      _demo_explodeEntity(self);
+      _demo_playerDied(self);
     }
+  }
+
+  if (_demo_isAlien(other))
+  {
+    _demo_explodeEntity(self);
+    _demo_playerDied(self);
   }
 }
 
@@ -242,11 +279,16 @@ void _demo_displayNumber(char* text, SDL_Point textPosition)
   }
 }
 
-void _demo_playerDied()
+void _demo_playerDied(struct Entity* player)
 {
   struct Entity* e = demoSingletons.em->first_ent;
   while (e)
   {
+    if (e == player)  // Don't interrupt the player's explosion animation; they will be cleaned up by _demo_explosionUpdate().
+    {
+      e = e->next;
+      continue;
+    }
     Entity_Destroy(demoSingletons.em, e);
     e = e->next;
   }
@@ -274,7 +316,9 @@ void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureM
   TextureManager_Load(renderer, tm, "assets/bullet.bmp");
   TextureManager_Load(renderer, tm, "assets/numbers.bmp");
   TextureManager_Load(renderer, tm, "assets/gameoverwindow.bmp");
+  TextureManager_Load(renderer, tm, "assets/youwinwindow.bmp");
   TextureManager_Load(renderer, tm, "assets/enemy2.bmp");
+  TextureManager_Load(renderer, tm, "assets/explosion.bmp");
 
   alienMoveDirection = DEMO_MOVE_DIR_RIGHT;
   bulletSprite = SpriteManager_CreateSprite(sm, TextureManager_GetTexture(tm, "assets/bullet.bmp"));

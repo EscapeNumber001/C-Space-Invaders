@@ -28,8 +28,8 @@
 #define DEMO_NUM_ALIEN_COLS 6
 #define DEMO_MAX_ALIENS	(DEMO_NUM_ALIEN_ROWS * DEMO_NUM_ALIEN_COLS)
 #define DEMO_ALIEN_SPRITE_SIZE (SDL_Point){30, 30}
-#define DEMO_SLOWEST_ALIEN_MOVE_DELAY_MS 1000
-#define DEMO_FASTEST_ALIEN_MOVE_DELAY_MS 250
+#define DEMO_SLOWEST_ALIEN_MOVE_DELAY_MS 750
+#define DEMO_FASTEST_ALIEN_MOVE_DELAY_MS 17
 
 #define DEMO_PLAYER_MOVE_SPEED		3
 #define DEMO_PLAYER_SIZE_PX		75
@@ -80,6 +80,9 @@ void _demo_alienMoveCoordinatorUpdate(struct Entity* self, int frameDelta);
 void _demo_bulletUpdate(struct Entity* self, int frameDelta);
 void _demo_playerUpdate(struct Entity* self, int frameDelta);
 void _demo_alienUpdate(struct Entity* self, int frameDelta);
+void _demo_explosionUpdate(struct Entity* self, int frameDelta);
+void _demo_explodeEntity(struct Entity* self);
 void _demo_displayNumber(char* text, SDL_Point position);
-void _demo_playerDied();
+void _demo_playerDied(struct Entity* player);
+void _demo_checkwin();
 #endif
