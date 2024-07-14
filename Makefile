@@ -27,7 +27,7 @@ CPPFLAGS := $(INC_FLAGS) -MMD -MP -g
 
 # The final build step.
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CXX) $(OBJS) -llua -ljson-c `sdl2-config --cflags --libs` -o $@ $(LDFLAGS)
+	$(CXX) $(OBJS) -ljson-c `sdl2-config --cflags --libs` -o $@ $(LDFLAGS)
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
