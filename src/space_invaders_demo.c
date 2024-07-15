@@ -21,11 +21,10 @@
 struct DemoSingletons demoSingletons;
 int alienMoveDirection;
 int msSinceLastMove = 0;
-int alienCount = DEMO_MAX_ALIENS;
-//struct Entity* alienMoveCoordinator;
+int alienCount;
 struct Sprite* bulletSprite;
 
-int score = 0;
+int score;
 
 void _demo_explodeEntity(struct Entity* self)
 {
@@ -54,6 +53,9 @@ void _demo_checkwin()
     gameOverWindow->sprite->isBackgroundSprite = true;
     gameOverWindow->position = (SDL_Point){WIDTH / 4, HEIGHT / 4};
     gameOverWindow->sprite->spriteScalePx = (SDL_Point){300, 150};
+
+    struct Entity* gameRestarter = EntityManager_CreateEntity(demoSingletons.em);
+    gameRestarter->onUpdate = _demo_gameRestarterUpdate;
   }
 }
 
@@ -94,7 +96,7 @@ bool _demo_isAlien(struct Entity* ent)
   if (ent->sprite == NULL)
     return false;
 
-  return (strcmp(ent->sprite->texture->filename, "assets/enemy2.bmp") == 0);
+  return (strcmp(ent->sprite->texture->filename, DEMO_ALIEN_TEXTURE_FILENAME) == 0);
 }
 
 struct Entity* _demo_getAlienClosestToEdge()
@@ -244,9 +246,10 @@ void _demo_playerUpdate(struct Entity* self, int frameDelta)
 
 void _demo_alienUpdate(struct Entity* self, int frameDelta)
 { 
-  int chance = rand() % 500;
+  int chance = rand() % DEMO_ALIEN_SHOOT_INTERVAL;
   if (chance != 0)
     return;
+
   struct Entity* bullet = EntityManager_CreateEntity(demoSingletons.em);
   bullet->aabbSize = (SDL_Point){15, 50};
   bullet->position = (SDL_Point){self->position.x + 40, self->position.y - 75};
@@ -285,11 +288,11 @@ void _demo_playerDied(struct Entity* player)
   while (e)
   {
     if (e == player)  // Don't interrupt the player's explosion animation; they will be cleaned up by _demo_explosionUpdate().
-    {
-      e = e->next;
-      continue;
-    }
+      goto _continue;
+
     Entity_Destroy(demoSingletons.em, e);
+
+_continue:
     e = e->next;
   }
 
@@ -303,6 +306,31 @@ void _demo_playerDied(struct Entity* player)
   gameOverWindow->sprite->isBackgroundSprite = true;
   gameOverWindow->position = (SDL_Point){WIDTH / 4, HEIGHT / 4};
   gameOverWindow->sprite->spriteScalePx = (SDL_Point){300, 150};
+
+  struct Entity* gameRestarter = EntityManager_CreateEntity(demoSingletons.em);
+  gameRestarter->onUpdate = _demo_gameRestarterUpdate;
+}
+
+void _demo_gameRestarterUpdate(struct Entity* self, int frameDelta)
+{
+  SDL_PumpEvents(); 
+  const Uint8* keyState = SDL_GetKeyboardState(NULL);
+  if (keyState[SDL_SCANCODE_RETURN] && !self->_markedForRemoval)
+  {
+    Demo_RestartGame();
+    Entity_Destroy(demoSingletons.em, self);
+  }
+}
+
+void Demo_RestartGame()
+{
+  struct Entity* e = demoSingletons.em->first_ent;
+  while (e)
+  {
+    Entity_Destroy(demoSingletons.em, e);
+    e = e->next;
+  }
+  Demo_StartGame();
 }
 
 void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureManager* tm, struct SpriteManager* sm)
@@ -311,30 +339,34 @@ void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureM
   demoSingletons.tm = tm;
   demoSingletons.sm = sm;
 
-  TextureManager_Load(renderer, tm, "assets/animationtest.bmp");
-  TextureManager_Load(renderer, tm, "assets/player.bmp");
+  TextureManager_Load(renderer, tm, DEMO_PLAYER_TEXTURE_FILENAME);
   TextureManager_Load(renderer, tm, "assets/bullet.bmp");
   TextureManager_Load(renderer, tm, "assets/numbers.bmp");
   TextureManager_Load(renderer, tm, "assets/gameoverwindow.bmp");
   TextureManager_Load(renderer, tm, "assets/youwinwindow.bmp");
-  TextureManager_Load(renderer, tm, "assets/enemy2.bmp");
+  TextureManager_Load(renderer, tm, DEMO_ALIEN_TEXTURE_FILENAME);
   TextureManager_Load(renderer, tm, "assets/explosion.bmp");
+
 
   alienMoveDirection = DEMO_MOVE_DIR_RIGHT;
   bulletSprite = SpriteManager_CreateSprite(sm, TextureManager_GetTexture(tm, "assets/bullet.bmp"));
   bulletSprite->spriteScalePx.x = 15;
   bulletSprite->spriteScalePx.y = 50;
+
 }
 
 void Demo_StartGame()
 {
+  struct Entity* player = EntityManager_CreateEntity(demoSingletons.em);
+  struct Sprite* playerSprite = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, DEMO_PLAYER_TEXTURE_FILENAME));
+
   struct Entity* alienMoveCoordinator = EntityManager_CreateEntity(demoSingletons.em);
   alienMoveCoordinator->onUpdate = _demo_alienMoveCoordinatorUpdate;
 
-  struct Entity* player = EntityManager_CreateEntity(demoSingletons.em);
-  struct Sprite* playerSpr = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, "assets/player.bmp"));
+  score = 0;
+  alienCount = DEMO_MAX_ALIENS;
 
-  player->sprite = playerSpr;
+  player->sprite = playerSprite;
   player->sprite->spriteScalePx = (SDL_Point){DEMO_PLAYER_SIZE_PX, DEMO_PLAYER_SIZE_PX};
   player->position = (SDL_Point){0, HEIGHT - 100};
   player->aabbSize = (SDL_Point){DEMO_PLAYER_SIZE_PX, DEMO_PLAYER_SIZE_PX};
@@ -349,7 +381,7 @@ void Demo_StartGame()
     for (int x = 0; x < DEMO_NUM_ALIEN_COLS; x++)
     {
       struct Entity* alien = EntityManager_CreateEntity(demoSingletons.em);
-      struct Sprite* alienSpr = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, "assets/enemy2.bmp"));
+      struct Sprite* alienSpr = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, DEMO_ALIEN_TEXTURE_FILENAME));
 
       alien->sprite = alienSpr;
       alien->onUpdate = _demo_alienUpdate;

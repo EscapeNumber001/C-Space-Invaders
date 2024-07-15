@@ -31,8 +31,10 @@
 #define DEMO_ALIEN_SPRITE_SIZE 			(SDL_Point){30, 30}
 #define DEMO_SLOWEST_ALIEN_MOVE_DELAY_MS 	750
 #define DEMO_FASTEST_ALIEN_MOVE_DELAY_MS        17
+#define DEMO_ALIEN_SHOOT_INTERVAL		500  // (1/n * 100)% chance per frame
 #define DEMO_ALIEN_BULLET_MOVE_SPEED	        3
 #define DEMO_SCORE_PER_ALIEN			5
+#define DEMO_ALIEN_TEXTURE_FILENAME		"assets/enemy2.bmp"
 
 // === Alien data ===
 #define DEMO_MAX_ALIENS			(DEMO_NUM_ALIEN_ROWS * DEMO_NUM_ALIEN_COLS)
@@ -44,6 +46,7 @@
 #define DEMO_PLAYER_MOVE_SPEED		3
 #define DEMO_PLAYER_SIZE_PX		75
 #define DEMO_PLAYER_BULLET_MOVE_SPEED	15
+#define DEMO_PLAYER_TEXTURE_FILENAME	"assets/player.bmp"
 
 
 // === Teams ===
@@ -76,6 +79,7 @@ struct BulletCustomData
 
 void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureManager* tm, struct SpriteManager* sm);
 void Demo_StartGame();
+void Demo_RestartGame();
 
 void _demo_onAlienHit(struct Entity* self, struct Entity* other);
 void _demo_onPlayerHit(struct Entity* self, struct Entity* other);
@@ -93,4 +97,5 @@ void _demo_explodeEntity(struct Entity* self);
 void _demo_displayNumber(char* text, SDL_Point position);
 void _demo_playerDied(struct Entity* player);
 void _demo_checkwin();
+void _demo_gameRestarterUpdate(struct Entity* self, int frameDelta);
 #endif

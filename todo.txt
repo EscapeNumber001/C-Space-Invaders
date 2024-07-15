@@ -1,7 +1,8 @@
 # To-Do
 [ ] 2024-07-14 Create a proper font +Font
 [ ] 2024-07-14 Make it possible to render letters in addition to numbers +Font
-[ ] 2024-07-14 Make it possible to restart the game without closing and relaunching the entire application
+[x] 2024-07-14 2024-07-14 Make it possible to restart the game without closing and relaunching the entire application
+[ ] 2024-07-14 Make the window resizable
 
 # WIP
 
