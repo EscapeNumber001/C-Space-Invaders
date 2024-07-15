@@ -24,32 +24,40 @@
 #include "sprite.h"
 #include "globals.h"
 
-#define DEMO_NUM_ALIEN_ROWS 3
-#define DEMO_NUM_ALIEN_COLS 6
-#define DEMO_MAX_ALIENS	(DEMO_NUM_ALIEN_ROWS * DEMO_NUM_ALIEN_COLS)
-#define DEMO_ALIEN_SPRITE_SIZE (SDL_Point){30, 30}
-#define DEMO_SLOWEST_ALIEN_MOVE_DELAY_MS 750
-#define DEMO_FASTEST_ALIEN_MOVE_DELAY_MS 17
+// === Alien settings ===
+#define DEMO_NUM_ALIEN_ROWS 			3
+#define DEMO_NUM_ALIEN_COLS 			6
+#define DEMO_ALIEN_SPACING 			(SDL_Point){80, 80}
+#define DEMO_ALIEN_SPRITE_SIZE 			(SDL_Point){30, 30}
+#define DEMO_SLOWEST_ALIEN_MOVE_DELAY_MS 	750
+#define DEMO_FASTEST_ALIEN_MOVE_DELAY_MS        17
+#define DEMO_ALIEN_BULLET_MOVE_SPEED	        3
+#define DEMO_SCORE_PER_ALIEN			5
 
+// === Alien data ===
+#define DEMO_MAX_ALIENS			(DEMO_NUM_ALIEN_ROWS * DEMO_NUM_ALIEN_COLS)
+#define DEMO_MOVE_DIR_RIGHT 		1
+#define DEMO_MOVE_DIR_LEFT  		-1
+
+
+// === Player settings ===
 #define DEMO_PLAYER_MOVE_SPEED		3
 #define DEMO_PLAYER_SIZE_PX		75
-
 #define DEMO_PLAYER_BULLET_MOVE_SPEED	15
-#define DEMO_ALIEN_BULLET_MOVE_SPEED	3
 
-#define DEMO_MOVE_DIR_RIGHT 1
-#define DEMO_MOVE_DIR_LEFT  -1
 
+// === Teams ===
 #define DEMO_TEAM_PLAYER	0
 #define DEMO_TEAM_ALIEN		1
 
+
+// === Etc ===
 #define DEMO_TEXT_SIZE_PX 	32
 
-#define DEMO_SCORE_PER_ALIEN	5
 
 struct DemoSingletons
 {
-struct EntityManager* em;
+  struct EntityManager* em;
   struct TextureManager* tm;
   struct SpriteManager* sm;
 };

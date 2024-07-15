@@ -22,7 +22,7 @@ struct DemoSingletons demoSingletons;
 int alienMoveDirection;
 int msSinceLastMove = 0;
 int alienCount = DEMO_MAX_ALIENS;
-struct Entity* alienMoveCoordinator;
+//struct Entity* alienMoveCoordinator;
 struct Sprite* bulletSprite;
 
 int score = 0;
@@ -328,7 +328,7 @@ void Demo_Init(SDL_Renderer* renderer, struct EntityManager* em, struct TextureM
 
 void Demo_StartGame()
 {
-  alienMoveCoordinator = EntityManager_CreateEntity(demoSingletons.em);
+  struct Entity* alienMoveCoordinator = EntityManager_CreateEntity(demoSingletons.em);
   alienMoveCoordinator->onUpdate = _demo_alienMoveCoordinatorUpdate;
 
   struct Entity* player = EntityManager_CreateEntity(demoSingletons.em);
@@ -353,7 +353,7 @@ void Demo_StartGame()
 
       alien->sprite = alienSpr;
       alien->onUpdate = _demo_alienUpdate;
-      alien->position = (SDL_Point){x * 80, y * 80};
+      alien->position = (SDL_Point){x * DEMO_ALIEN_SPACING.x, y * DEMO_ALIEN_SPACING.y};
       alien->aabbSize = DEMO_ALIEN_SPRITE_SIZE;
       alien->sprite->spriteScalePx = DEMO_ALIEN_SPRITE_SIZE;
       alien->onAabbIntersect = _demo_onAlienHit;
