@@ -22,8 +22,6 @@
 #include "texture_manager.h"
 #include "space_invaders_demo.h"
 
-#define PLAYER_SHOOT_DELAY_MS 750;
-
 struct SDLGameContext
 {
   SDL_Window* win;
@@ -36,18 +34,6 @@ struct SDLGameContext sdlGameCtx;
 struct SpriteManager sm;
 struct EntityManager em;
 struct TextureManager tm;
-
-int cantShootUntilTick = 0;
-
-void BulletUpdate(struct Entity* ent, int frameDelta)
-{
-  ent->position.y -= 15;
-
-  if (ent->position.y < 0)
-  {
-    Entity_Destroy(&em, ent);
-  }
-}
 
 int main()
 {
