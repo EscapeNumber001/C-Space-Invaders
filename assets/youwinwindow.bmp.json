@@ -1,7 +1,7 @@
 {
-  "textureLengthPx": 64,
-  "animationFps": 1,
-  "loopAnimation": false,
+  "textureLengthPx": 128,
+  "animationFps": 2,
+  "loopAnimation": true,
   "textureFrameResolutionPx": {
     "x": 64,
     "y": 32

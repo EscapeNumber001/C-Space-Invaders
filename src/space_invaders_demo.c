@@ -298,7 +298,7 @@ _continue:
 
   char scoreAsStr[16];
   sprintf(scoreAsStr, "%d", score);
-  _demo_displayNumber(scoreAsStr, (SDL_Point){WIDTH / 2 + 32, HEIGHT / 2 - 24});
+  _demo_displayNumber(scoreAsStr, (SDL_Point){WIDTH / 2 + 64, HEIGHT / 2 - 32});
 
   struct Entity* gameOverWindow = EntityManager_CreateEntity(demoSingletons.em);
   struct Sprite* gowSpr = SpriteManager_CreateSprite(demoSingletons.sm, TextureManager_GetTexture(demoSingletons.tm, "assets/gameoverwindow.bmp"));

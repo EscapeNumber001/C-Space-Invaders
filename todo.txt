@@ -1,10 +1,10 @@
 # To-Do
 [ ] 2024-07-14 Create a proper font +Font
 [ ] 2024-07-14 Make it possible to render letters in addition to numbers +Font
-[x] 2024-07-14 2024-07-14 Make it possible to restart the game without closing and relaunching the entire application
 [ ] 2024-07-14 Make the window resizable
 
 # WIP
+[ ] 2024-07-14 Aliens frequently go beyond the right edge of the screen +Bug
 
 # Done
 [x] 2024-06-02 2024-06-04 Allow the animation system to support spritesheets with frames larger than 16x16 +Sprite +Animation
@@ -12,6 +12,7 @@
 [x] 2024-06-02 2024-06-02 Add a function to unload CachedTextures from memory +Texture
 [x] 2024-06-04 2024-06-04 Implement a way to store texture metadata in a file rather than hardcoding it into the load function's arguments +Texture
 [x] 2024-06-04 2024-06-04 Implement a placeholder texture to prevent segmentation faults when attempting to get an unloaded texture +Texture
+[x] 2024-07-14 2024-07-14 Make it possible to restart the game without closing and relaunching the entire application
 
 # Scrapped
 [ ] 2024-06-02 Make it possible to hook onUpdate and onAabbIntersect +Lua +Entity
